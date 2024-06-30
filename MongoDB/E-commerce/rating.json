@@ -1,0 +1,89 @@
+[{
+  "_id": {
+    "$oid": "5fb9453af4b8353ab0e37574"
+  },
+  "userId": "5eb67cfff46b041a6454f989",
+  "productId": "1",
+  "stars": 3,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5fb947ffbe1bf439381a6a7d"
+  },
+  "userId": "5f1fe179694dea34bcb8d6ca",
+  "productId": "1",
+  "stars": 5,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff69ea1c11db238d4c18a4f"
+  },
+  "userId": "5f1fe179694dea34bcb8d6ca",
+  "productId": "11",
+  "stars": 5,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff69ea9c11db238d4c18a50"
+  },
+  "userId": "5f1fe179694dea34bcb8d6ca",
+  "productId": "12",
+  "stars": 4,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff69eb5c11db238d4c18a51"
+  },
+  "userId": "5f1fe179694dea34bcb8d6ca",
+  "productId": "13",
+  "stars": 4,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff69eb7c11db238d4c18a52"
+  },
+  "userId": "5f1fe179694dea34bcb8d6ca",
+  "productId": "14",
+  "stars": 5,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff69ed6c11db238d4c18a53"
+  },
+  "userId": "5f1fe179694dea34bcb8d6ca",
+  "productId": "2",
+  "stars": 5,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff69ed8c11db238d4c18a54"
+  },
+  "userId": "5f1fe179694dea34bcb8d6ca",
+  "productId": "3",
+  "stars": 3,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff69ee4c11db238d4c18a55"
+  },
+  "userId": "5f1fe179694dea34bcb8d6ca",
+  "productId": "6",
+  "stars": 3,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff6a24ec11db238d4c18a57"
+  },
+  "userId": "5ff68e9f3ee01d445c676c63",
+  "productId": "11",
+  "stars": 5,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62c617705d7caa6050ef498c"
+  },
+  "userId": "62c5eee8b142a20330a04f74",
+  "productId": "3",
+  "stars": 5,
+  "__v": 0
+}]

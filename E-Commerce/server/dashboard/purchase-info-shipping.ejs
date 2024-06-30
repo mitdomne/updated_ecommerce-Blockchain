@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<!--
+This is a starter template page. Use this page to start your new project from
+scratch. This page gets rid of all links and provides the needed markup only.
+-->
+<html lang="en">
+
+<%- include('resource/partials/header') %> 
+
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+
+  <!-- Navbar -->
+  <%- include('resource/partials/navbar') %> 
+  <!-- /.navbar -->
+
+  <!-- Main Sidebar Container -->
+  <%- include('resource/partials/left-sidebar') %> 
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <%- include('resource/partials/content-header') %> 
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <div class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-12">
+            <div>
+              <ul class="nav nav-tabs">
+                <li class="active"><a href="#purchaseInfos" data-toggle="tab"></a></li>
+                <li><a href="#purchaseInfoDetails" data-toggle="tab"></a></li>
+              </ul>
+            </div>
+            <div class="tab-content">
+              <div class="tab-pane fade in active show" id="purchaseInfos" >
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Id</th>
+                        <th>Người mua</th>
+                        <th>Số điện thoại</th>
+                        <th>Địa chỉ</th>
+                        <th>Tổng tiền (ETH)</th>
+                        <th>Ngày mua</th>
+                        <th>Người giao</th>
+                        <th>Tên người giao</th>
+                        <th>Mã giao hàng</th>
+                        <th>Xác nhận</th>
+                        <th>Chi tiết</th>
+                      </tr>
+                    </thead>
+                    <% purchaseInfos.forEach((element) => { %>
+                      <tr id="tr_id_<%= element.id %>">
+                          <td><%= element.id %></td>
+                          <td><a href="/accounts/<%= element.buyer.username %>"><%= element.buyer.lastName + ' ' + element.buyer.firstName %></a></td>
+                          <td><input class="form-control form-control-sm" type="text" value="<%= element.phoneNumber %>" size="1" disabled></td>
+                          <td><input class="form-control form-control-sm" type="text" value="<%= element.userAddress %>" size="12" disabled></td>
+                          <td><input class="form-control form-control-sm" type="text" value="<%= element.totalPrice %>" size="1" disabled></td>
+                          <td><input class="form-control form-control-sm" name="timestamp" type="text" value="<%= element.shipTimestamp %>" size="12" disabled></td>
+                          <td>
+                            <% if (element.shipper) { %>                       
+                              <a href="/accounts/<%= element.shipper.username %>"><%= element.shipper.username %></a>
+                            <% } %>
+                          </td>
+                          <td>
+                            <select id="shipper_id_<%= element.id %>" class="form-control form-control-sm" onchange="handleShipperChange('<%= element.id %>')" data-current-shipper-id="<%= element.shipper ? element.shipper.userId : '' %>"></select>
+                            <button id="save_shipper_id_<%= element.id %>" class="btn btn-success" onclick="handleSaveShipper('<%= element.id %>')" hidden><i class="fa fa-save"></i></button>
+                          </td>
+                          <td><input class="form-control form-control-sm" maxlength="4" size="1" id="pin_id_<%= element.id %>"></td>
+                          <td><button id="pin_button_id_<%= element.id %>" class="btn btn-warning" style="margin-top: 0px;" onclick="handleDeliverButton('<%= element.id %>')">Nhập</button></td>
+                          <td><a href="javascript:void(0);" onclick="showDetails('<%= element.id %>')">Xem</a></td>
+                      </tr>
+                    <% }) %>
+                </table>
+              </div>
+              <div class="tab-pane fade" id="purchaseInfoDetails" >
+                <a href="javascript:void(0);" onclick="showInfos()"><i class="fa fa-arrow-left"></i></a>
+                <table id="tablePurchaseInfoDetails" class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Mã hàng</th>
+                      <th>Tên hàng</th>
+                      <th>Số lượng</th>
+                      <th>Đơn giá (ETH)</th>
+                      <th>Tổng giá (ETH)</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+                <h5 id="saleCodeLabel">Mã khuyến mãi: <span id="saleCode" style="color: chartreuse;"></span></h5>
+                <h5 id="saleOffLabel">Giảm: <span id="saleOff" style="color: chartreuse;"></span></h5>
+                <h3>Tổng tiền: 
+                  <span id="buyTotalPriceSale" style="color: silver; text-decoration: line-through;"></span>
+                  <span id="buyTotalPrice" style="color: chartreuse;">0</span></h3>
+              </div>
+            </div>
+            <!-- /.col-md-6 -->
+          </div>
+        </div>
+        <!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  <!-- Main Footer -->
+  <%- include('resource/partials/footer') %> 
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+<%- include('resource/partials/required-scripts') %> 
+<%- include('resource/partials/web3') %> 
+
+<script>
+  let contract;
+  $(function() {
+    loadDateFormat();
+    loadWeb3();
+
+    const users = document.getElementsByTagName("select");
+    for (let i = 0; i < users.length; i++) {
+      const element = users[i];
+      if (element.id.startsWith("shipper_id_")){
+        let option = document.createElement("option");
+        option.value = "";
+        option.text = "Không chọn";
+        element.appendChild(option);
+        let count = 1;
+        "<% accounts.forEach((entry) => { %>"
+          option = document.createElement("option");
+          option.value = "<%= entry.id %>";
+          option.text = "<%= entry.lastName %> <%= entry.firstName %>";
+          element.appendChild(option);
+          
+          if (element.getAttribute("data-current-shipper-id") === "<%= entry.id %>")
+            element.selectedIndex = count;
+
+          count++;
+        "<% }) %>"
+      }
+    }
+  });
+
+  function loadDateFormat() {
+    const dates = document.getElementsByName("timestamp");
+      dates.forEach(element => {
+        const date = new Date(element.value * 1000);
+        element.value = (date.getHours() < 10 ? '0':'') + date.getHours() + ":" + (date.getMinutes() < 10 ? '0':'') + date.getMinutes() + "   " + (date.getDate() < 10 ? '0':'') + date.getDate() + "/" + (date.getMonth() < 9 ? '0':'') + (date.getMonth() + 1) + "/" + date.getFullYear()
+      });
+  }
+  function handleDeliverButton(id) {
+    const pin = document.getElementById("pin_id_" + id).value;
+
+    web3.eth.getAccounts(function (error, result) {
+      if (error)
+        console.log(error);
+      else {
+        if ("<%= user.owner %>" != result[0]) {
+          alert("Tài khoản ví hiện tại khác với tài khoản ví đã đăng ký!")
+          return;
+        }
+        contract.methods.comfirmDelivered(id, pin).send({from: result[0]}).then(function(tx){
+          alert("Xác nhận giao hàng thành công!")
+          document.getElementById("tr_id_" + id).remove()
+          console.log(tx);
+        }).catch(function(tx){
+          console.log(tx);
+        })
+      }
+    })
+  }
+    
+  function handleShipperChange(purchaseId) {
+    document.getElementById("save_shipper_id_" + purchaseId).hidden = false;
+  }
+
+  function handleSaveShipper(purchaseId) {
+    let shipperId = document.getElementById("shipper_id_" + purchaseId);
+    shipperId = shipperId[shipperId.selectedIndex].value;
+    $.ajax({
+      url: '/dashboard/purchase-info-shipping/save-shipper',
+      type: 'POST',
+      data: {
+        purchaseId: purchaseId,
+        shipperId: shipperId
+      },
+      success: function(response) {
+        if (response === "Ok") {
+          alert('Lưu người giao thành công!');
+          window.location.reload();
+        }
+      }
+    })
+  }
+
+  function showDetails(sellInfoId) {
+    $.ajax({
+      url: '/accounts/update/get-sell-info-details?sellInfoId=' + sellInfoId,
+      type:'GET',
+      success: function (response) {
+        const table = document.getElementById("tablePurchaseInfoDetails");
+        const thead = table.firstElementChild;
+        const tbody = table.lastElementChild;
+        let totalPrice = 0;
+        tbody.innerHTML = '';
+        
+        for (let i = 1; i < response.length; i++) {
+          const element = response[i];
+          const tr = document.createElement("tr");
+          for (let detail in element) {
+            const th = document.createElement("td");
+            if (detail === "productId")
+              th.innerHTML = "<a href='/products/" + element[detail] + "'>" + element[detail] + " </a>";
+            else th.innerText = element[detail];
+            tr.appendChild(th);	
+          }
+          const th = document.createElement("td");
+          const productPrice = element.amount * element.unitPrice
+          totalPrice += productPrice;
+          th.innerText = productPrice;
+          tr.appendChild(th);
+          tbody.appendChild(tr);
+        }
+
+        const totalPriceSale = document.getElementById("buyTotalPriceSale");
+        const saleCodeLabel = document.getElementById("saleCodeLabel");
+        const saleOffLabel = document.getElementById("saleOffLabel");
+        const sale = response[0];
+
+        if (Object.keys(sale).length === 0 && sale.constructor === Object) {	
+          totalPriceSale.innerText = "";
+          saleCodeLabel.hidden = true;
+          saleOffLabel.hidden = true;
+        } else {
+          totalPriceSale.innerText = totalPrice + " ETH";
+          totalPrice = totalPrice - totalPrice * sale.saleOff / 100;
+          saleCodeLabel.hidden = false;
+          saleOffLabel.hidden = false;
+          document.getElementById("saleCode").innerText = sale.saleCode;
+          document.getElementById("saleOff").innerText = sale.saleOff + "%";
+        }
+
+        document.getElementById("buyTotalPrice").innerText = totalPrice + " ETH";
+        $('.nav-tabs a[href="#purchaseInfoDetails"]').tab('show')
+      }
+    })
+  }
+  
+  function showInfos() {
+    $('.nav-tabs a[href="#purchaseInfos"]').tab('show')
+  }
+</script>
+
+</body>
+</html>

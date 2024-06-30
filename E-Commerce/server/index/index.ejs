@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('header') %>
+
+<body>
+
+	<%- include('body-header') %>
+	
+	<section>
+		<div class="container">
+			<div class="row">
+
+				<%- include('left-sidebar') %>
+				
+				<div class="col-sm-9 padding-right">
+					<div class="features_items"><!--features_items-->
+						<div class="col-sm-12">
+							<div class="shop-menu pull-right">
+								<ul class="nav navbar-nav">
+									<li><a href="/products/search/:all"><h4>Xem tất cả >></h4></a></li>
+								</ul>
+							</div>
+						</div>
+						<br>
+						<% if (productsSellerPicks.length) { %>
+							<div class="col-sm-12">
+								<h2 class="title text-center">Mặt hàng nổi bật</h2>
+									<% productsSellerPicks.forEach(element => { %>
+										<div class="col-sm-3">
+											<div class="product-image-wrapper">
+												<div class="single-products">
+													<div class="productinfo text-center">
+														<a href="/products/<%= element.id %>">
+															<img src="https://ipfs.infura.io/ipfs/<%= element.imageHash %>" alt="" style="height: 200px; object-fit: scale-down;"/>
+															<h2><%= element.price %> ETH</h2>
+															<p><%= element.name %></p>
+															<div class="starrr" data-rating="<%= element.rating %>"></div>
+														</a>
+														<button class="btn btn-default add-to-cart" onclick="addToCart('<%= element.id %>')"><i class="fa fa-shopping-cart"></i>Thêm vào giỏ hàng</button>
+													</div>
+												</div>
+												<div class="choose">
+													<ul class="nav nav-pills nav-justified">
+														<li><a href="javascript:void(0);" onclick="return addToWishList('<%= element.id %>')"><i class="fa fa-star"></i>Thêm vào mong muốn</a></li>
+													</ul>
+												</div>
+											</div>
+										</div>
+									<% }) %>
+							</div>
+						<% } %>
+						<% if (products.length) { %>
+							<div class="col-sm-12">
+								<h2 class="title text-center">Mặt hàng chung</h2>
+								<% products.forEach(element => { %>
+								<div class="col-sm-3">
+									<div class="product-image-wrapper">
+										<div class="single-products">
+											<div class="productinfo text-center">
+												<a href="/products/<%= element.id %>">
+													<img src="https://ipfs.infura.io/ipfs/<%= element.imageHash %>" alt=""/>
+													<h2><%= element.price %> ETH</h2>
+													<p><%= element.name %></p>
+													<div class="starrr" data-rating="<%= element.rating %>"></div>
+												</a>
+												<button class="btn btn-default add-to-cart" onclick="addToCart('<%= element.id %>')"><i class="fa fa-shopping-cart"></i>Thêm vào giỏ hàng</button>
+											</div>
+										</div>
+										<div class="choose">
+											<ul class="nav nav-pills nav-justified">
+												<li><a href="javascript:void(0);" onclick="return addToWishList('<%= element.id %>')"><i class="fa fa-star"></i>Thêm vào mong muốn</a></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+								<% }) %>
+							</div>
+						<% } %>
+					</div><!--features_items-->
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<%- include('footer') %> 
+
+	<script type="text/javascript" src="/js/starrr.js"></script>
+
+	<script>
+		$(function() {
+			$('.starrr').each((index, element) => {
+				$(element).starrr({
+					rating: $(element).attr('data-rating'),
+					readOnly: true
+				});
+			})
+		})
+		
+		function addToCart(productId){
+			$.ajax({
+				url: '/cart/add-to-cart',
+				type: 'POST',
+				data: { 
+					productId: productId,
+					amount: 1
+				},
+				success: function (result) {
+					window.location.href = "/cart";
+				}
+			})
+		}
+
+		function addToWishList(productId){
+			$.ajax({
+				url: '/wish-list/add-to-wish-list',
+				type: 'POST',
+				data: { 
+					productId: productId
+				},
+				success: function (result) {
+					window.location.href = "/wish-list";
+				}
+			})
+		}
+	</script>
+</body>
+</html>

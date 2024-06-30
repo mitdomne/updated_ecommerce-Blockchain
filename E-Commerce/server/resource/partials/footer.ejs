@@ -1,0 +1,51 @@
+<footer id="footer"><!--Footer-->
+  <div class="footer-top">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-4">
+          <div class="companyinfo">
+            <h2><span>B</span>-Shop</h2>
+            <div class="about-us">
+              <p style="font-size:20px;">Hệ thống thương mại điện tử sử dụng công nghệ Blockchain</p>
+              <p style="font-size:16px;">MitDom Co.LTD..</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-4">
+        </div>
+        <div class="col-sm-4">
+          <div class="address">
+            <div class="col-sm-11">
+              <img src="/images/home/map_home_m.png" alt="" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+</footer><!--/Footer-->
+
+<script src="/js/jquery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/jquery.scrollUp.min.js"></script>
+<script src="/js/price-range.js"></script>
+<script src="/js/jquery.prettyPhoto.js"></script>
+<script src="/js/header-active.js"></script>
+<script src="/js/main.js"></script>
+
+<% if (user) { %>
+  <script>
+    $(function() {
+      $.ajax({
+        url: '/get-header-count',
+        method: 'GET',
+        success: function (response) {
+          document.getElementById("wishListCount").innerText = response.wishListCount || '';
+          document.getElementById("chatCount").innerText = response.chatCount || '';
+          document.getElementById("cartCount").innerText = response.cartCount || '';
+				}
+      })
+    })
+  </script>
+<% } %>

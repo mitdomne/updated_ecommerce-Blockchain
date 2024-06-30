@@ -1,0 +1,173 @@
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+  <!-- Brand Logo -->
+  <a href="/dashboard" class="brand-link">
+    <img src="/dashboard/resource/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
+         style="opacity: .8">
+    <span class="brand-text font-weight-light">Trang Admin</span>
+  </a>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <!-- Sidebar user panel (optional) -->
+    <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+      <div class="image">
+        <img src="https://ipfs.infura.io/ipfs/<%= user.avatar %>" class="img-circle elevation-2" alt="User Image">
+      </div>
+      <div class="info">
+        <a href="/accounts/<%= user.id %>" class="d-block"><%= user.lastName + ' ' + user.firstName %></a>
+      </div>
+    </div>
+
+    <!-- Sidebar Menu -->
+    <nav class="mt-2">
+      <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+        <!-- Add icons to the links using the .nav-icon class
+             with font-awesome or any other icon font library -->
+        <li class="nav-item">
+          <a href="/dashboard/" class="nav-link">
+            <i class="fas fa-chart-pie nav-icon"></i>
+            <p>Thống kê</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/dashboard/site-settings/" class="nav-link">
+            <i class="fas fa-sliders-h nav-icon"></i>
+            <p>Thông số hệ thống</p>
+          </a>
+        </li>
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-luggage-cart"></i>
+            <p>
+              Hàng hóa
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="/dashboard/products/" class="nav-link">
+                <i class="fas fa-angle-double-right nav-icon"></i>
+                <p>Tất cả</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/dashboard/product-category/" class="nav-link">
+                <i class="fas fa-clone nav-icon"></i>
+                <p>Loại hàng hóa</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/dashboard/product-license/" class="nav-link">
+                <i class="fas fa-clipboard-check nav-icon"></i>
+                <p>Kiểm duyệt hàng hóa</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/dashboard/product-imports/" class="nav-link">
+                <i class="fas fa-file-import nav-icon"></i>
+                <p>Nhập kho hàng hóa</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/dashboard/product-seller-picks/" class="nav-link">
+                <i class="fa fa-angle-double-up nav-icon"></i>
+                <p>Đẩy tin</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/dashboard/product-reports/" class="nav-link">
+                <i class="fas fa-flag nav-icon"></i>
+                <p>Hàng hóa bị báo cáo</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/dashboard/product-refused/" class="nav-link">
+                <i class="fas fa-times-circle nav-icon"></i>
+                <p>Hàng hóa bị từ chối</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-users"></i>
+            <p>
+              Tài khoản
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="/dashboard/accounts/" class="nav-link">
+                <i class="fas fa-angle-double-right nav-icon"></i>
+                <p>Tất cả</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/dashboard/accounts-locked/" class="nav-link">
+                <i class="fas fa-times-circle nav-icon"></i>
+                <p>Tài khoản bị khóa</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-percentage"></i>
+            <p>
+              Khuyến mãi
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="/dashboard/sales-active/" class="nav-link">
+                <i class="fas fa-circle nav-icon"></i>
+                <p>Đang kích hoạt</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/dashboard/sales-inactive/" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Chưa kích hoạt</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-file-signature"></i>
+            <p>
+              Đơn hàng
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="/dashboard/purchase-info-shipping/" class="nav-link">
+                <i class="fas fa-spinner nav-icon"></i>
+                <p>Đang giao</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/dashboard/purchase-info-delivered/" class="nav-link">
+                <i class="fas fa-user-check nav-icon"></i>
+                <p>Đã giao</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a href="/logout" class="nav-link">
+            <i class="nav-icon fas fa-sign-out-alt"></i>
+            <p>
+              Đăng xuất
+            </p>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <!-- /.sidebar-menu -->
+  </div>
+  <!-- /.sidebar -->
+</aside>

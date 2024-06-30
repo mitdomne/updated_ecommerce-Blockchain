@@ -1,0 +1,73 @@
+[{
+  "_id": {
+    "$oid": "5fe05fd7f0571734c4b68006"
+  },
+  "fromUserId": "5f1fe179694dea34bcb8d6ca",
+  "toUserId": "5eb67cfff46b041a6454f989",
+  "new": false,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5fe0713bebdb7531eca374ac"
+  },
+  "fromUserId": "5f1fe179694dea34bcb8d6ca",
+  "toUserId": "5eb67cfff46b041a6454f989",
+  "new": false,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5fe0713eebdb7531eca374ae"
+  },
+  "fromUserId": "5eb67cfff46b041a6454f989",
+  "toUserId": "5f1fe179694dea34bcb8d6ca",
+  "new": false,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff68fee4be8232368f00129"
+  },
+  "fromUserId": "5ff68e9f3ee01d445c676c63",
+  "toUserId": "5f1fe179694dea34bcb8d6ca",
+  "new": false,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff68fee4be8232368f0012a"
+  },
+  "fromUserId": "5ff68e9f3ee01d445c676c63",
+  "toUserId": "5f1fe179694dea34bcb8d6ca",
+  "new": false,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62c5f7bdb142a20330a054f2"
+  },
+  "fromUserId": "5f1fe179694dea34bcb8d6ca",
+  "toUserId": "5ff68e9f3ee01d445c676c63",
+  "new": true,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62c6162a5d7caa6050ef467b"
+  },
+  "fromUserId": "5f1fe179694dea34bcb8d6ca",
+  "toUserId": "62c5eee8b142a20330a04f74",
+  "new": false,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62c6162a5d7caa6050ef467e"
+  },
+  "fromUserId": "5f1fe179694dea34bcb8d6ca",
+  "toUserId": "62c5eee8b142a20330a04f74",
+  "new": false,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62c617445d7caa6050ef48f8"
+  },
+  "fromUserId": "62c5eee8b142a20330a04f74",
+  "toUserId": "5f1fe179694dea34bcb8d6ca",
+  "new": false,
+  "__v": 0
+}]

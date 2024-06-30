@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<!--
+This is a starter template page. Use this page to start your new project from
+scratch. This page gets rid of all links and provides the needed markup only.
+-->
+<html lang="en">
+
+<%- include('resource/partials/header') %> 
+
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+
+  <!-- Navbar -->
+  <%- include('resource/partials/navbar') %> 
+  <!-- /.navbar -->
+
+  <!-- Main Sidebar Container -->
+  <%- include('resource/partials/left-sidebar') %> 
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <%- include('resource/partials/content-header') %> 
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <div class="content">
+      <div class="container-fluid">
+        <form action="/dashboard/site-settings" method="POST">
+          <div class="row form-group">
+            <div class="col-lg-3">
+              <label>Phần trăm hoa hồng</label>
+            </div>
+            <div class="col-lg-3">
+              <input class="col-lg-3 form-control" type="number" name="commission" value="<%= settings.commission %>" min="0" max="100">
+            </div>
+          </div>
+          <div class="row form-group">
+            <div class="col-lg-3">
+              <label>Chi phí đẩy tin (ETH/ngày)</label>
+            </div>
+            <div class="col-lg-3">
+              <input class="col-lg-3 form-control" type="number" name="sellerPicks" value="<%= settings.sellerPicks %>" min="0" step="0.001">
+            </div>
+          </div>
+          <div class="row form-group">
+            <div class="col-lg-3">
+              <label>Địa chỉ ví của trang</label>
+            </div>
+            <div class="col-lg-4">
+              <input class="col-lg-11 form-control" type="text" name="siteAddress" value="<%= settings.siteAddress %>">
+            </div>
+          </div>
+          <button class="btn btn-primary" type="submit">Cập nhật</button>
+        </form>
+        <!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  <!-- Main Footer -->
+  <%- include('resource/partials/footer') %> 
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+<%- include('resource/partials/required-scripts') %> 
+
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('header') %>
+
+<body>
+	
+	<%- include('body-header') %>
+	
+	<section>
+		<div class="container">
+			<div class="row">
+
+				<%- include('left-sidebar') %>
+				
+				<div class="col-sm-9 padding-right">	
+					<div class="features_items"><!--category-tab-->
+						<h2 class="title text-center"><%= searchText %> </h2>
+						<div class="tab-content">
+							<% if (!products.length) { %>
+								<div class="col-sm-3">
+										<div class="single-products">
+											<div class="productinfo text-center">
+												Không có hàng hóa nào!
+											</div>
+										</div>
+								</div>
+							<% } %>
+							<% products.forEach(element => { %>
+								<div class="col-sm-3">
+									<div class="product-image-wrapper">
+										<div class="single-products">
+											<div class="productinfo text-center">
+												<a href="/products/<%= element.id %>">
+													<img src="https://ipfs.infura.io/ipfs/<%= element.imageHash %>" alt="" style="height: 200px; object-fit: scale-down;"/>
+													<h2><%= element.price %> ETH</h2>
+													<p><%= element.name %></p>
+													<div class="starrr" data-rating="<%= element.rating %>"></div>
+												</a>
+											<button class="btn btn-default add-to-cart" onclick="addToCart('<%= element.id %>')"><i class="fa fa-shopping-cart"></i>Thêm vào giỏ hàng</button>
+											</div>
+										</div>
+										<div class="choose">
+											<ul class="nav nav-pills nav-justified">
+												<li><a href="javascript:void(0);" onclick="return addToWishList('<%= element.id %>')"><i class="fa fa-star"></i>Thêm vào mong muốn</a></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							<% }) %>
+						</div>
+					</div><!--/category-tab-->
+				</div>
+			</div>
+		</div>
+	</section>
+	
+	<%- include('footer') %> 
+	
+	<script type="text/javascript" src="/js/starrr.js"></script>
+
+	<script>
+		$(function() {
+			$('.starrr').each((index, element) => {
+				$(element).starrr({
+					rating: $(element).attr('data-rating'),
+					readOnly: true
+				});
+			})
+		})
+
+		function addToCart(productId){
+			$.ajax({
+				url: '/cart/add-to-cart',
+				type: 'POST',
+				data: { 
+					productId: productId,
+					amount: 1
+				},
+				success: function (result) {
+					window.location.href = "/cart";
+				}
+			})
+		}
+
+		function addToWishList(productId){
+			$.ajax({
+				url: '/wish-list/add-to-wish-list',
+				type: 'POST',
+				data: { 
+					productId: productId
+				},
+				success: function (result) {
+					window.location.href = "/wish-list";
+				}
+			})
+		}
+	</script>
+
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<!--
+This is a starter template page. Use this page to start your new project from
+scratch. This page gets rid of all links and provides the needed markup only.
+-->
+<html lang="en">
+
+<%- include('resource/partials/header') %> 
+
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+
+  <!-- Navbar -->
+  <%- include('resource/partials/navbar') %> 
+  <!-- /.navbar -->
+
+  <!-- Main Sidebar Container -->
+  <%- include('resource/partials/left-sidebar') %> 
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <%- include('resource/partials/content-header') %> 
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <div class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-12">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Id</th>
+                  <th>Tên</th>
+                  <th>Loại</th>
+                  <th>Giá (ETH)</th>
+                  <th>Hình ảnh</th>
+                  <th>Người bán</th>
+                  <th>Tên người bán</th>
+                  <th>Số báo cáo</th>
+                  <th>Xác nhận</th>
+                </tr>
+              </thead>
+              <% products.forEach((entry) => { %>
+              <tr>
+                <td><a href="/products/<%= entry.id %>"><%= entry.id %></a></td>
+                <td><input type="text" class="product_id_<%= entry.id %> form-control" id="name_id_<%= entry.id %>" value="<%= entry.name %>" size="12" disabled></td>
+                <td>
+                  <input class="product_id_<%= entry.id %> form-control" id="categoryId_id_<%= entry.id %>" value="<%= productCategories[entry.categoryId - 1].name %>" size="8" disabled>
+                </td>
+                <td><input type="text" class="product_id_<%= entry.id %> form-control" id="price_id_<%= entry.id %>" value="<%= entry.price %>" size="1" disabled></td>
+                <td>
+                  <img src="https://ipfs.infura.io/ipfs/<%= entry.imageHash %>" id="imageHash_id_<%= entry.id %>" style="max-width: 100px; max-height: 100px;object-fit: scale-down;">
+                </td>
+                <td><a href="/accounts/<%= entry.username %>"><%= entry.username %></a></td>
+                <td><input type="text" class="product_id_<%= entry.id %> form-control"  id="userId_id_<%= entry.id %>" value="<%= entry.fullName %>" size="8" disabled></td>
+                <td><input type="text" class="product_id_<%= entry.id %> form-control" id="price_id_<%= entry.id %>" value="<%= entry.reports %>" size="1" disabled></td>
+                <td>
+                    <input class="btn btn-success product_id_<%= entry.id %>" id="save_button_id_<%= entry.id %>" type="button" value="Hợp lệ"
+                      onclick="handleValidProduct('<%= entry.id %>')">
+                    <input class="btn btn-danger product_id_<%= entry.id %>" id="cancel_button_id_<%= entry.id %>" type="button" value="Vi phạm"
+                      onclick="handleInvalidProduct('<%= entry.id %>')">
+                </td>
+              </tr>
+              <% }) %>
+          </table>
+          </div>
+          <!-- /.col-md-6 -->
+        </div>
+        <!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  <!-- Main Footer -->
+  <%- include('resource/partials/footer') %> 
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+<%- include('resource/partials/required-scripts') %> 
+
+<script>
+  function handleValidProduct(productId) {
+    $.ajax({
+      url: '/dashboard/product-reports/valid/' + productId,
+      type: 'POST',
+      success: function (result) {
+        document.location.reload();
+      }
+    })
+  }
+
+  function handleInvalidProduct(productId) {
+    $.ajax({
+      url: '/dashboard/product-reports/invalid/' + productId,
+      type: 'POST',
+      success: function (result) {
+        document.location.reload();
+      }
+    })
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<!--
+This is a starter template page. Use this page to start your new project from
+scratch. This page gets rid of all links and provides the needed markup only.
+-->
+<html lang="en">
+
+<%- include('resource/partials/header') %> 
+
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+
+  <!-- Navbar -->
+  <%- include('resource/partials/navbar') %> 
+  <!-- /.navbar -->
+
+  <!-- Main Sidebar Container -->
+  <%- include('resource/partials/left-sidebar') %> 
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <%- include('resource/partials/content-header') %> 
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <div class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-12">
+            <table class="table table-hover" id="productTable">
+              <thead>
+                <tr>
+                  <th>Id</th>
+                  <th>Ngày nhập</th>
+                  <th>Người tạo</th>
+                  <th>Tên người tạo</th>
+                  <th>Tình trạng</th>
+                  <th>Edit</th>
+                </tr>
+              </thead>
+              <tr>
+                <th></th>
+                <th><input class="form-control" id="importedDateInput" type="datetime-local" size="8"></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <td>
+                    <input class="btn btn-primary" type="button" value="Thêm" onclick="handleAddImports()">
+                </td>
+              </tr>
+              <% productImports.forEach((entry) => { %>
+              <tr>
+                <td><input type="text" class="form-control" value="<%= entry.id %>" disabled></td>
+                <td><input type="text" class="form-control" value="<%= entry.importedDate.getTime() %>" name="timestamp" disabled></td>
+                <td><a href="/accounts/<%= entry.username %>"><%= entry.username %></a></td>
+                <td><input type="text" class="form-control" value="<%= entry.creator %>" size="10" disabled></td>
+                <td <% if (entry.status === "Draft") { %>style="color: orange;"<% } else { %>style="color: green;"<% } %>><%= entry.status %></td>
+                <td>
+                  <a class="btn btn-info" href="/dashboard/product-imports/<%= entry.id %> ">
+                    Chi tiết
+                  </a>
+                  <% if (entry.status === "Draft") { %>
+                    <button class="btn btn-success" onclick="handlePublishImports('<%= entry.id %>')">
+                      Lưu nhập
+                    </button>
+                  <% } %>
+                  <button class="btn btn-danger" onclick="handleDeleteImports('<%= entry.id %>')">
+                    Xóa
+                  </button>
+                </td>
+              </tr>
+              <% }) %>
+          </table>
+          </div>
+          <!-- /.col-md-6 -->
+        </div>
+        <!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  <!-- Main Footer -->
+  <%- include('resource/partials/footer') %> 
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+<%- include('resource/partials/required-scripts') %> 
+
+<script>
+  $(function() {
+    loadDateFormat();
+  });
+
+  function loadDateFormat() {
+    const dates = document.getElementsByName("timestamp");
+    dates.forEach(element => {
+      const date = new Date(+element.value);
+      element.value = (date.getHours() < 10 ? '0':'') + date.getHours() + ":" + (date.getMinutes() < 10 ? '0':'') + date.getMinutes() + "   " + (date.getDate() < 10 ? '0':'') + date.getDate() + "/" + (date.getMonth() < 9 ? '0':'') + (date.getMonth() + 1) + "/" + date.getFullYear();
+    });
+  }
+
+  function handleAddImports() {
+    if (confirm("Xác nhận thêm nhập kho?")) {
+      $.ajax({
+        url: '/dashboard/product-imports/add',
+        type: 'POST',
+        data: {
+          importedDate: document.getElementById('importedDateInput').value
+        },
+        success: function (result) {
+          window.location.reload();
+        }
+    })
+    }
+  }
+
+  function handlePublishImports(importsId) {
+    if (confirm("Xác nhận áp dụng bản nhập vào hệ thống?")) {
+      $.ajax({
+          url: '/dashboard/product-imports/publish',
+          type: 'POST',
+          data: {
+            importsId: importsId
+          },
+          success: function (result) {
+              window.location.reload();
+          }
+      })
+    }      
+  }
+
+  function handleDeleteImports(importsId) {
+    if (confirm("Xác nhận xóa bản nhập?")) {
+      $.ajax({
+          url: '/dashboard/product-imports/delete',
+          type: 'POST',
+          data: {
+            importsId: importsId
+          },
+          success: function (result) {
+              window.location.reload();
+          }
+      })
+    }      
+  }
+</script>
+
+</body>
+</html>

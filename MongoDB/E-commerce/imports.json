@@ -1,0 +1,37 @@
+[{
+  "_id": {
+    "$oid": "5ff67dbe9b28982e24fea349"
+  },
+  "importedDate": {
+    "$date": {
+      "$numberLong": "1654571940000"
+    }
+  },
+  "importedBy": "5eb67cfff46b041a6454f989",
+  "status": "Published",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff7c9b8f5b66443ac8099fb"
+  },
+  "importedDate": {
+    "$date": {
+      "$numberLong": "1654656952874"
+    }
+  },
+  "importedBy": "5f1fe179694dea34bcb8d6ca",
+  "status": "Published",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62c7a3b5e45d356b18e474df"
+  },
+  "importedDate": {
+    "$date": {
+      "$numberLong": "1657250741080"
+    }
+  },
+  "importedBy": "5f1fe179694dea34bcb8d6ca",
+  "status": "Draft",
+  "__v": 0
+}]

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<!--
+This is a starter template page. Use this page to start your new project from
+scratch. This page gets rid of all links and provides the needed markup only.
+-->
+<html lang="en">
+
+<%- include('resource/partials/header') %> 
+
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+
+  <!-- Navbar -->
+  <%- include('resource/partials/navbar') %> 
+  <!-- /.navbar -->
+
+  <!-- Main Sidebar Container -->
+  <%- include('resource/partials/left-sidebar') %> 
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <%- include('resource/partials/content-header') %> 
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <div class="content">
+      <div class="container-fluid">
+        <!-- /.row -->
+        <div class="row">
+          <div class="col-lg-12">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Id</th>
+                  <th>Tên</th>
+                  <th>Xóa?</th>
+                  <th>Edit</th>
+                </tr>
+              </thead>
+              <tr>
+                <td></td>
+                <td><input class="form-control" type="text" id="addCategoryName" size="1" style="width: 190px;"></td>
+                <td></td>
+                <td>
+                    <input class="btn btn-primary" id="category_add_button" type="button" value="Add" 
+                      onclick="handleAddCategory()">
+                </td>
+              </tr>
+              <% productCategories.forEach((entry) => { %>
+              <tr>
+                <td><input type="text" class="form-control" value="<%= entry.id %>" size="1" style="width: 80px;" disabled></td>
+                <td><input type="text" class="category_id_<%= entry.id %> form-control" id="name_id_<%= entry.id %>" value="<%= entry.name %>" size="1" style="width: 190px;" disabled></td>
+                <td><input type="checkbox" class="category_id_<%= entry.id %> form-control" id="isDeleted_id_<%= entry.id %>"  <% if (entry.isDeleted) { %>checked<% } %> style="width: 30px;" disabled></td>
+                <td>
+                    <input class="btn btn-primary category_id_<%= entry.id %>" id="update_button_id_<%= entry.id %>" type="button" value="Update"
+                      onclick="handleUpdateCategory('<%= entry.id %>')">
+                    <input class="btn btn-primary category_id_<%= entry.id %>" id="save_button_id_<%= entry.id %>" type="button" value="Save" 
+                      onclick="handleSaveUpdateCategory('<%= entry.id %>')" hidden>
+                    <input class="btn btn-secondary category_id_<%= entry.id %>" id="cancel_button_id_<%= entry.id %>" type="button" value="Cancel"
+                      onclick="handleCancelUpdateCategory('<%= entry.id %>')" hidden>
+                </td>
+              </tr>
+              <% }) %>
+          </table>
+          </div>
+          <!-- /.col-md-6 -->
+        </div>
+        <!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  <!-- Main Footer -->
+  <%- include('resource/partials/footer') %> 
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+<%- include('resource/partials/required-scripts') %> 
+<%- include('resource/partials/web3') %> 
+
+<script>
+  let contract;
+  $(function() {
+    loadWeb3();
+  });
+
+  function handleUpdateCategory(categoryId) {
+    const cateogryInfo = document.getElementsByClassName("category_id_" + categoryId);
+    for (let i = 0; i < cateogryInfo.length; i++) {
+      const element = cateogryInfo[i];
+
+      if (element.id == "update_button_id_" + categoryId) 
+        element.hidden = true;
+      else{
+        element.hidden = false;
+        element.disabled = false;
+      }
+    }
+  }
+
+  function handleCancelUpdateCategory(categoryId) {
+    const categoryInfo = document.getElementsByClassName("category_id_" + categoryId);
+    
+    for (let i = 0; i < categoryInfo.length; i++) {
+      const element = categoryInfo[i];
+      if (element.id == "update_button_id_" + categoryId) 
+        element.hidden = false;
+      else if (element.id == "cancel_button_id_" + categoryId || element.id == "save_button_id_" + categoryId || element.id == "image_id_" + categoryId) {
+        element.hidden = true;
+      }
+      else{
+        element.disabled = true;
+      }
+    }
+  }
+
+  function handleSaveUpdateCategory(categoryId) {
+    const name = document.getElementById("name_id_" + categoryId).value;
+    const isDeleted = document.getElementById("isDeleted_id_" + categoryId).checked;
+
+    web3.eth.getAccounts(function (error, result) {
+      if (error)
+        console.log(error);
+      else {
+        if ("<%= user.owner %>" != result[0]) {
+          alert("Tài khoản ví hiện tại khác với tài khoản ví đã đăng ký!")
+          return;
+        }
+        contract.methods.updateCategory(categoryId, name, isDeleted).send({from: result[0]}).then(function(tx) {
+          window.location.reload();
+          console.log(tx);
+        }).catch(function(tx) {
+          console.log(tx.message);
+        })
+      }
+    })
+  }
+
+  function handleAddCategory() {
+    const name = document.getElementById("addCategoryName").value;
+
+    web3.eth.getAccounts(function (error, result) {
+      if (error)
+        console.log(error);
+      else {
+        if ("<%= user.owner %>" != result[0]) {
+          alert("Tài khoản ví hiện tại khác với tài khoản ví đã đăng ký!")
+          return;
+        }
+        contract.methods.addCategory(name).send({from: result[0]}).then(function(tx) {
+          window.location.reload();
+          console.log(tx);
+        }).catch(function(tx) {
+          console.log(tx);
+        })
+      }
+    });
+  }
+</script>
+
+</body>
+</html>

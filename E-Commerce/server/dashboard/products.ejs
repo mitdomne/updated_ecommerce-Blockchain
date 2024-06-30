@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<!--
+This is a starter template page. Use this page to start your new project from
+scratch. This page gets rid of all links and provides the needed markup only.
+-->
+<html lang="en">
+
+<%- include('resource/partials/header') %> 
+
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+
+  <!-- Navbar -->
+  <%- include('resource/partials/navbar') %> 
+  <!-- /.navbar -->
+
+  <!-- Main Sidebar Container -->
+  <%- include('resource/partials/left-sidebar') %> 
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <%- include('resource/partials/content-header') %> 
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <div class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="content-container">
+              <h5>Tìm kiếm</h5>
+              <input type="text" class="form-control" id="searchInput" onkeyup="handleSearch()" placeholder="Search">
+              <h5>Lọc theo loại hàng hóa</h5>
+              <select onchange="handleSearch()" id="categorySelect">
+                <option value="0" selected>Tất cả</option>
+              </select>
+              <table class="table table-hover" id="productTable">
+                <thead>
+                  <tr>
+                    <th>Id</th>
+                    <th>Tên</th>
+                    <th>Loại</th>
+                    <th>Đơn giá (ETH)</th>
+                    <th>Đã bán/SL</th>
+                    <th>Hình ảnh</th>
+                    <th>Người bán</th>
+                    <th>Tên người bán</th>
+                    <th>Xóa?</th>
+                    <th>Edit</th>
+                  </tr>
+                </thead>
+                <tr>
+                  <td></td>
+                  <td><input class="form-control form-control-sm" type="text" id="addProductName" size="10"></td>
+                  <td><select class="form-control form-control-sm" id="addProductCategoryId"></select></td>
+                  <td><input class="form-control form-control-sm" type="text" id="addProductPrice" size="1"></td>
+                  <td></td>
+                  <td>
+                    <input id="addProductImageInput" type="file" style="width: 190px;">
+                    <img src="" id="addProductImage" style="max-width: 100px; max-height: 100px; object-fit: scale-down;">
+                  </td>
+                  <td></td>
+                  <td>
+                    <select class="form-control form-control-sm" id="addUserId" data-user-id="true"></select>
+                  </td>
+                  <td></td>
+                  <td>
+                      <input class="btn btn-primary" id="product_add_button" type="button" value="Add" 
+                        onclick="handleAddProduct()">
+                  </td>
+                </tr>
+                <% products.forEach((entry) => { %>
+                <tr>
+                  <td><a class="link-box" href="/products/<%= entry.id %>"><%= entry.id %></a></td>
+                  <td><input type="text" class="product_id_<%= entry.id %> form-control form-control-sm" id="name_id_<%= entry.id %>" value="<%= entry.name %>" size="10" disabled></td>
+                  <td>
+                    <select class="product_id_<%= entry.id %> form-control form-control-sm" id="categoryId_id_<%= entry.id %>" current_category_id = <%= entry.categoryId %> disabled></select>
+                  </td>
+                  <td><input type="text" class="product_id_<%= entry.id %> form-control form-control-sm" id="price_id_<%= entry.id %>" value="<%= entry.price %>" size="1" disabled></td>
+                  <td><input type="text" class="form-control form-control-sm" value="<%= entry.purchasedQuantity %> / <%= entry.quantity %>" size="1" disabled></td>
+                  <td>
+                    <div>
+                      <input class="product_id_<%= entry.id %>" id="image_id_<%= entry.id %>" type="file" onchange="imageOnchange('<%= entry.id %>')" style="width: 180px;" hidden>
+                    </div>
+                    <img src="https://ipfs.infura.io/ipfs/<%= entry.imageHash %>" id="imageHash_id_<%= entry.id %>" style="max-width: 100px; max-height: 100px; object-fit: scale-down;">
+                  </td>
+                  <td><a href="/accounts/<%= entry.username %>"><%= entry.username %></a></td>
+                  <td>
+                    <select class="product_id_<%= entry.id %> form-control form-control-sm" id="userId_id_<%= entry.id %>" data-current-user-id="<%= entry.userId %>" data-user-id="true" disabled></select>
+                  </td>
+                  <td><input type="checkbox" class="product_id_<%= entry.id %> form-control form-control-sm"  id="isDeleted_id_<%= entry.id %>" <% if (entry.isDeleted) { %>checked<% } %> style="width: 30px;" disabled></td>
+                  <td>
+                      <input class="btn btn-primary product_id_<%= entry.id %>" id="update_button_id_<%= entry.id %>" type="button" value="Update"
+                        onclick="handleUpdateProduct('<%= entry.id %>')">
+                      <input class="btn btn-primary product_id_<%= entry.id %>" id="save_button_id_<%= entry.id %>" type="button" value="Save" 
+                        onclick="handleSaveUpdateProduct('<%= entry.id %>')" hidden>
+                      <input class="btn btn-secondary product_id_<%= entry.id %>" id="cancel_button_id_<%= entry.id %>" type="button" value="Cancel"
+                        onclick="handleCancelUpdateProduct('<%= entry.id %>')" hidden>
+                  </td>
+                </tr>
+                <% }) %>
+              </table>
+            </div>
+          </div>
+          <!-- /.col-md-6 -->
+        </div>
+        <!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  <!-- Main Footer -->
+  <%- include('resource/partials/footer') %> 
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+<%- include('resource/partials/required-scripts') %> 
+<%- include('resource/partials/web3') %> 
+<%- include('resource/partials/ipfs') %> 
+
+<script>
+  let contract;
+  $(function() {
+    const categories = document.getElementsByTagName("select");
+    for (let i = 0; i < categories.length; i++) {
+      const element = categories[i];
+      if (element.id.substr(0, 10) === "categoryId" || element.id === "addProductCategoryId" || element.id === "categorySelect") {
+        let count = 0, option;
+        "<% productCategories.forEach((entry) => { %>"
+          option = document.createElement("option");
+          option.value = "<%= entry.id %>";
+          option.text = "<%= entry.name %>";
+          element.appendChild(option);
+          
+          if (element.getAttribute("current_category_id") === "<%= entry.id %>")
+            element.selectedIndex = count;  //value += ' - ' + "<%= entry.name %>"
+            
+          count++;
+        "<% }) %>"
+      }
+    }
+
+    loadWeb3();
+
+    const users = document.getElementsByTagName("select");
+
+    for (let i = 0; i < users.length; i++) {
+      const element = users[i];
+      if (element.getAttribute("data-user-id")){
+        let count = 0, option;
+        "<% accounts.forEach((entry) => { %>"
+          option = document.createElement("option");
+          option.value = "<%= entry.id %>";
+          option.text = "<%= entry.lastName %> <%= entry.firstName %>";
+          element.appendChild(option);
+          
+          if (element.getAttribute("data-current-user-id") === "<%= entry.id %>")
+            element.selectedIndex = count;
+
+          count++;
+        "<% }) %>"
+      }
+    }
+  });
+
+  function handleUpdateProduct(productId) {
+    const productInfo = document.getElementsByClassName("product_id_" + productId);
+    for (let i = 0; i < productInfo.length; i++) {
+      const element = productInfo[i];
+
+      if (element.id === "update_button_id_" + productId) 
+        element.hidden = true;
+      else{
+        element.hidden = false;
+        element.disabled = false;
+      }
+    }
+  }
+
+  function handleCancelUpdateProduct(productId) {
+    const productInfo = document.getElementsByClassName("product_id_" + productId);
+    
+    for (let i = 0; i < productInfo.length; i++) {
+      const element = productInfo[i];
+      if (element.id === "update_button_id_" + productId) 
+        element.hidden = false;
+      else if (element.id === "cancel_button_id_" + productId || element.id === "save_button_id_" + productId || element.id === "image_id_" + productId) {
+        element.hidden = true;
+      }
+      else{
+        element.disabled = true;
+      }
+    }
+  }
+
+  function handleSaveUpdateProduct(productId) {
+    const name = document.getElementById("name_id_" + productId).value;
+    const categoryId = document.getElementById("categoryId_id_" + productId).value;
+    const price = document.getElementById("price_id_" + productId).value;
+    const imageHash = document.getElementById("imageHash_id_" + productId).src.substr(28);
+    const userId = document.getElementById("userId_id_" + productId).value;
+    const isDeleted = document.getElementById("isDeleted_id_" + productId).checked;
+
+    web3.eth.getAccounts(function (error, result) {
+      if (error)
+        console.log(error);
+      else {
+        if ("<%= user.owner %>" != result[0]) {
+          alert("Tài khoản ví hiện tại khác với tài khoản ví đã đăng ký!")
+          return;
+        }
+        contract.methods.updateProduct(productId, name, categoryId, price, imageHash, userId, isDeleted).send({from: result[0]}).then(function(tx) {
+          window.location.reload();
+          console.log(tx);
+        }).catch(function(tx) {
+          console.log(tx.message);
+        })
+      }
+    })
+  }
+
+  const ipfs = window.IpfsHttpClient('ipfs.infura.io', '5001', { protocol: 'https' });
+  function imageOnchange(productId) {
+    document.getElementById("save_button_id_" + productId).disabled = true;
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const to_buffer = buffer.Buffer(reader.result);
+      ipfs.add(to_buffer, (err, result) => {
+        console.log(err, result);
+
+        document.getElementById("imageHash_id_" + productId).src = "https://ipfs.infura.io/ipfs/" + result[0].hash;
+        document.getElementById("save_button_id_" + productId).disabled = false;
+      })
+    }
+    reader.readAsArrayBuffer(document.getElementById("image_id_" + productId).files[0]);
+  }
+
+  function handleAddProduct() {
+    const name = document.getElementById("addProductName").value;
+    const categoryId = document.getElementById("addProductCategoryId").value;
+    const price = document.getElementById("addProductPrice").value;
+    const imageHash = document.getElementById("addProductImage").src.substr(28);
+    const userId = "<%= user.id %>";
+    
+    web3.eth.getAccounts(function (error, result) {
+      if (error)
+        console.log(error);
+      else {
+        if ("<%= user.owner %>" != result[0]) {
+          alert("Tài khoản ví hiện tại khác với tài khoản ví đã đăng ký!")
+          return;
+        }
+        contract.methods.addProduct(name, categoryId, price, imageHash, userId).send({from: result[0]}).then(function(tx) {
+          $.ajax({
+            url: '/dashboard/add-quantity',
+            type:'POST',
+            async: false,
+            success: function (response) {
+              if (response != "Ok")
+                alert(response)
+              else {
+                alert("Thêm sản phẩm thành công");
+                window.location.reload();
+                console.log(tx);
+              }
+            }
+          })
+        }).catch(function(tx) {
+          console.log(tx);
+        })
+      }
+    });
+  }
+
+  $("#addProductImageInput").on("change", function() {
+      document.getElementById("product_add_button").disabled = true;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+          const to_buffer = buffer.Buffer(reader.result);
+          ipfs.add(to_buffer, (err, result) => {
+              console.log(err, result);
+
+              document.getElementById("addProductImage").src = "https://ipfs.infura.io/ipfs/" + result[0].hash;
+              document.getElementById("product_add_button").disabled = false;
+          })
+      }
+      reader.readAsArrayBuffer(this.files[0]);
+  });
+
+  function handleSearch() {
+    const input = document.getElementById("searchInput");
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById("productTable");
+    const select = document.getElementById("categorySelect");
+    const trs = table.getElementsByTagName("tr");
+
+    for (let i = 2; i < trs.length; i++) {
+      tds = trs[i].getElementsByTagName("td");
+      if (!tds.length) continue;
+      currentSelect = tds[2].getElementsByTagName("select")[0];
+      if (select.selectedIndex != 0 && currentSelect.options[currentSelect.selectedIndex].innerText != select.options[select.selectedIndex].innerText) {
+        trs[i].hidden = true;
+        continue;
+      }
+      for (j = 0; j < tds.length; j++) {
+        // Ignore category
+        if (j === 2 || j === 6) continue;
+        const txtValue = tds[j].textContent || tds[j].innerText || tds[j].getElementsByTagName("input")[0].value;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+          trs[i].hidden = false;
+          break;
+        }
+      }
+      if (j === tds.length) trs[i].hidden = true;
+    }
+}
+</script>
+
+</body>
+</html>

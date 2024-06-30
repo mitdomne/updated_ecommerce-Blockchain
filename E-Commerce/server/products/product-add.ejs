@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('header') %>
+
+<body>
+	
+	<%- include('body-header') %>
+	
+	<section id="form"><!--form-->
+		<div class="container">
+			<div class="row align-items-center">
+				<div class="col-sm-12">
+					<div class="login-form" id="login_container">
+						<h2>THÊM SẢN PHẨM</h2>
+						<div class="col-sm-12">
+							<div class="form-group col-sm-6">
+								<label>Tên</label>
+								<input class="form-control" type="text" id='productName'>
+							</div>
+							<div class="form-group col-sm-6">
+								<label>Danh mục</label>
+								<select class="form-control" id="productCategoryId"></select>
+							</div>
+							<div class="form-group col-sm-6">
+								<label>Giá (ETH)</label>
+								<input class="form-control" type="number" id='productPrice'>
+							</div>
+							<div class="form-group col-sm-6">
+								<label>Hình ảnh</label>
+								<input class="form-control" id="productImageInput" type="file">
+								<img src="" id="productImage" style="max-width: 100px; max-height: 100px;object-fit: scale-down;">
+							</div>
+						</div>
+						<input id="product_add_button" class="btn btn-primary" type="submit" onclick="addButtonclicked()" value="THÊM" style="margin-bottom: 30px;">
+					</div>
+				</div>
+			</div>
+		</div>
+	</section><!--/form-->
+	
+	<%- include('footer') %> 
+	<%- include('ipfs') %> 
+	<%- include('web3') %> 
+
+	<script>
+		let contract;
+		$(function() {
+			const categories = document.getElementsByTagName("select");
+			for (let i = 0; i < categories.length; i++) {
+				const element = categories[i]; 
+				let option;
+				if (element.id == "productCategoryId"){
+					"<% categories.forEach((entry) => { %>"
+						option = document.createElement("option");
+						option.value = "<%= entry.id %>";
+						option.text = "<%= entry.name %>";
+						element.appendChild(option);
+					"<% }) %>"
+				}
+			}
+			loadWeb3();
+		})
+
+		function addButtonclicked() {
+			const name = document.getElementById("productName").value;
+			const categoryId = document.getElementById("productCategoryId").value;
+			const price = document.getElementById("productPrice").value;
+			const imageHash = document.getElementById("productImage").src.substr(28);
+			const userId = "<%= user.id %>";
+
+			web3.eth.getAccounts(function (error, result) {
+				if (error)
+					console.log(error);
+				else {
+					if ("<%= user.owner %>" != result[0]) {
+						alert("Tài khoản ví hiện tại khác với tài khoản ví đã đăng ký!")
+						return;
+					}
+					contract.methods.addProduct(name, categoryId, price, imageHash, userId).send({from: result[0]}).then(function(tx){
+						$.ajax({
+							url: '/dashboard/add-quantity',
+							type:'POST',
+							success: function (response) {
+								if (response != "Ok")
+									alert(response)
+								else {
+									alert("Thêm sản phẩm thành công");
+									window.location.href = '/accounts/<%= user.username %>';
+									console.log(tx);
+								}
+							}
+						})
+					}).catch(function(tx){
+						console.log(tx);
+					})
+				}
+			})
+		}
+
+		const ipfs = window.IpfsHttpClient('ipfs.infura.io', '5001', { protocol: 'https' });
+		$("#productImageInput").on("change", function() {
+			document.getElementById("product_add_button").disabled = true;
+			const reader = new FileReader();
+			reader.onload = function (e) {
+				const to_buffer = buffer.Buffer(reader.result);
+				ipfs.add(to_buffer, (err, result) => {
+					console.log(err, result);
+
+					document.getElementById("productImage").src = "https://ipfs.infura.io/ipfs/" + result[0].hash;
+					document.getElementById("product_add_button").disabled = false;
+				})
+			}
+			reader.readAsArrayBuffer(this.files[0]);
+		});
+	</script>
+</body>
+</html>

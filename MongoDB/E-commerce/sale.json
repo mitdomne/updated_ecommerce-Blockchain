@@ -1,0 +1,81 @@
+[{
+  "_id": {
+    "$oid": "5fba56a9ef6f1b349c4f91a8"
+  },
+  "saleName": "Test1",
+  "saleCode": "SALE",
+  "saleOff": 51,
+  "quantity": 5,
+  "usedQuantity": 0,
+  "startDate": {
+    "$date": {
+      "$numberLong": "1657065600000"
+    }
+  },
+  "endDate": {
+    "$date": {
+      "$numberLong": "1657238400000"
+    }
+  },
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5fba88ef9409da3864ce7478"
+  },
+  "saleName": "Test1",
+  "saleCode": "TEST2",
+  "saleOff": 1,
+  "quantity": 1,
+  "usedQuantity": 0,
+  "startDate": {
+    "$date": {
+      "$numberLong": "1655942400000"
+    }
+  },
+  "endDate": {
+    "$date": {
+      "$numberLong": "1656028800000"
+    }
+  },
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5fcbb42919717025d4ae9548"
+  },
+  "saleName": "test",
+  "saleCode": "TEST",
+  "saleOff": 50,
+  "quantity": 5,
+  "usedQuantity": 2,
+  "startDate": {
+    "$date": {
+      "$numberLong": "1654387200000"
+    }
+  },
+  "endDate": {
+    "$date": {
+      "$numberLong": "1654732800000"
+    }
+  },
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62c6112dc7816d1f105a7dbc"
+  },
+  "saleName": "Sale2",
+  "saleCode": "77",
+  "saleOff": 2,
+  "quantity": 5,
+  "usedQuantity": 0,
+  "startDate": {
+    "$date": {
+      "$numberLong": "1654473600000"
+    }
+  },
+  "endDate": {
+    "$date": {
+      "$numberLong": "1654646400000"
+    }
+  },
+  "__v": 0
+}]

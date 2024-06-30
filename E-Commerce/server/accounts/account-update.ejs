@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('header') %>
+
+<body>
+	
+	<%- include('body-header') %>
+	
+	<section id="form"><!--form-->
+		<div class="container">
+			<div class="row align-items-center">
+				<div class="col-sm-12">
+					<div class="login-form" id="login_container">
+						<h2>CẬP NHẬT TÀI KHOẢN</h2>
+						<form action="/accounts/<%= account.username %>" method="POST" onsubmit="handleUpdateAccount();">
+							<div class="form-group col-sm-6">
+									<label>ID</label>
+									<input class="form-control" type="text" name='accountId' value="<%= account._id %>" disabled>
+							</div>
+							<div class="form-group col-sm-6">
+									<label>Tên đăng nhập</label>
+									<input class="form-control" type="text" name='accountUsername' value="<%= account.username %>" disabled>
+							</div>
+							<div class="form-group col-sm-6">
+								<label>Họ</label>
+								<input class="form-control" type="text" name='accountLastName' value="<%= account.lastName %>">
+							</div>
+							<div class="form-group col-sm-6">
+								<label>Tên</label>
+								<input class="form-control" type="text" id='accountFirstName' name='accountFirstName' value="<%= account.firstName %>">
+							</div>
+							<div class="form-group col-sm-6">
+								<label>Số điện thoại</label>
+								<input class="form-control" type="text" id='accountPhoneNumber' name='accountPhoneNumber' value="<%= account.phoneNumber %>">
+							</div>
+							<div class="form-group col-sm-6">
+								<label>Địa chỉ</label>
+								<input class="form-control" type="text" id='accountAddress' name='accountAddress' value="<%= account.address %>">
+							</div>
+							<div class="form-group col-sm-6">
+								<label>Địa chỉ ví</label>
+								<input class="form-control" type="text" id='accountOwner' name='accountOwner' value="<%= account.owner %>">
+							</div>
+							<div class="form-group col-sm-6">
+								<label>Vai trò</label>
+								<input class="form-control" type="text" name='accountRole' value="<%= account.role %>" disabled>
+							</div>
+							<div class="form-group col-sm-6">
+								<label>Email</label>
+								<input class="form-control" type="text" id='accountEmail' name='accountEmail' value="<%= account.email %>">
+							</div>
+							<div class="form-group col-sm-6">
+								<label>Ảnh đại diện</label>
+								<input id="accountAvatarInput" class="form-control" type="file">
+								<img src="https://ipfs.infura.io/ipfs/<%= account.avatar %>" id="accountAvatar" name="accountAvatar" style="max-width: 150px; max-height: 150px; object-fit: scale-down;">
+								<input class="form-control" id="accountAvatarHiddenInput" name="accountAvatar" value="<%= account.avatar %>" type="hidden">
+							</div>
+							<div class="form-group col-sm-6">
+								<label>Mật khẩu cũ</label>
+								<input class="form-control" type="password" id='accountOldPassword' name='accountOldPassword'>
+							</div>
+							<div class="form-group col-sm-3">
+								<label>Mật khẩu mới</label>
+								<input class="form-control" type="password" id='accountNewPassword' name='accountNewPassword'>
+							</div>
+							<div class="form-group col-sm-3">
+								<label>Nhập lại mật khẩu mới</label>
+								<input class="form-control" type="password" id='accountNewPasswordConfirm' name='accountNewPasswordConfirm'>
+							</div>
+							<button id="save_button" type="submit" class="btn">SAVE</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section><!--/form-->
+	
+	<%- include('footer') %> 
+	<%- include('ipfs') %> 
+	
+	<script>
+	function handleUpdateAccount() {
+		const owner = document.getElementById("accountOwner").value;
+		const email = document.getElementById("accountEmail").value;
+		const firstName = document.getElementById("accountFirstName").value;
+		const phoneNumber = document.getElementById("accountPhoneNumber").value;
+		const address = document.getElementById("accountAddress").value;
+
+		let checkExist = null;
+		$.ajax({
+			url: '/accounts/update/check-exist',
+			type:'POST',
+			async: false,
+			data: {
+				accountId: "<%= account._id %>",
+				email: email
+			},
+			success: function (response) {
+				checkExist = response;
+			}
+		})
+		if (checkExist !== "Ok") {
+			alert(checkExist);
+			event.preventDefault(); 
+			return false;
+		}
+
+		// Check valid owner address
+		const re = /^[0-9a-fA-F]+$/;
+		if (!owner) {
+		alert('Bạn cần thêm tài khoản Ether!');
+			event.preventDefault(); 
+			return false;
+		}
+
+		if (!re.test(owner.substring(2, owner.length)) || owner.length !== 42 || owner[0] !== "0" || owner[1] !== "x") {
+			alert('Địa chỉ tài khoản Ether không hợp lệ!');
+			event.preventDefault(); 
+			return false;
+		}
+
+		if (!phoneNumber) {
+			alert("Số điện thoại trống!")
+			event.preventDefault(); 
+			return false;
+		}
+
+		if (!address) {
+			alert("Địa chỉ trống!")
+			event.preventDefault(); 
+			return false;
+		}
+
+		if (!firstName) {
+			alert("Tên trống!")
+			event.preventDefault(); 
+			return false;
+		}
+
+		if (!email) {
+			alert("Email trống!")
+			event.preventDefault(); 
+			return false;
+		}
+
+		const at = email.indexOf("@");
+		const dot = email.lastIndexOf(".");
+		const space = email.indexOf(" ");
+		if (email.length <= 5 || at < 1 || dot <= at + 1 || space !== -1) {
+			alert('Địa chỉ Email không hợp lệ !\nExample@gmail.com');
+			event.preventDefault(); 
+			return false;
+		}
+
+		const newPassword = document.getElementById("accountNewPassword").value;
+		if (newPassword) {
+			const newPasswordConfirm = document.getElementById("accountNewPasswordConfirm").value;
+			if (newPassword !== newPasswordConfirm) {
+				alert('Mật khẩu mới không khớp!');
+				event.preventDefault(); 
+				return false;
+			}
+
+			const oldPassword = document.getElementById("accountOldPassword").value;
+			let checkPassword = null;
+			$.ajax({
+				url: '/accounts/update/check-password',
+				type:'POST',
+				async: false,
+				data: {
+					accountId: "<%= account._id %>",
+					password: oldPassword
+				},
+				success: function (response) {
+					checkPassword = response
+				}
+			})
+			if (checkPassword !== "Ok") {
+				alert(checkPassword);
+				event.preventDefault(); 
+				return false;
+			}
+		}
+		return true;
+	};
+
+	const ipfs = window.IpfsHttpClient('ipfs.infura.io', '5001', { protocol: 'https' });
+	$("#accountAvatarInput").on("change", function() {
+		document.getElementById("save_button").disabled = true;
+		const reader = new FileReader();
+		reader.onload = function (e) {
+			const to_buffer = buffer.Buffer(reader.result);
+			ipfs.add(to_buffer, (err, result) => {
+				console.log(err, result);
+
+				document.getElementById("accountAvatar").src = "https://ipfs.infura.io/ipfs/" + result[0].hash;
+				document.getElementById("save_button").disabled = false;
+				document.getElementById("accountAvatarHiddenInput").value = result[0].hash;
+			})
+		}
+		reader.readAsArrayBuffer(this.files[0]);
+	});
+	
+	</script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<!--
+This is a starter template page. Use this page to start your new project from
+scratch. This page gets rid of all links and provides the needed markup only.
+-->
+<html lang="en">
+
+<%- include('resource/partials/header') %> 
+
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+
+  <!-- Navbar -->
+  <%- include('resource/partials/navbar') %> 
+  <!-- /.navbar -->
+
+  <!-- Main Sidebar Container -->
+  <%- include('resource/partials/left-sidebar') %> 
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <%- include('resource/partials/content-header') %> 
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <div class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-12">
+            <table class="table table-hover" id="productTable">
+              <thead>
+                <tr>
+                  <th>Id</th>
+                  <th>Mã/tên hàng hóa</th>
+                  <th>Số lượng nhập</th>
+                  <th>Edit</th>
+                </tr>
+              </thead>
+              <tr>
+                <th></th>
+                <th>
+                  <select class="form-control" id="productIdSelect"></select>
+                </th>
+                <th><input class="form-control" id="quantityInput" type="number" min="1" value="1" style="width: 100px;"></th>
+                <td>
+                  <input class="btn btn-success" type="button" value="Thêm" onclick="handleAddImportInfo()">
+                </td>
+              </tr>
+              <% productImportInfo.forEach((entry) => { %>
+              <tr>
+                <td><input type="text" class="form-control" value="<%= entry.id %>" size="8" disabled></td>
+                <td><a href="/products/<%= entry.productId %>"><%= entry.productId %> - <%= entry.productName %></a></td>
+                <td><input class="form-control" id="quantity_id_<%= entry.id %>" type="number" min="1" value="<%= entry.quantity %>" style="width: 100px;" disabled></td>
+                <td>
+                    <input class="btn btn-primary product_id_<%= entry.id %>" id="update_button_id_<%= entry.id %>" type="button" value="Update"
+                        onclick="handleUpdateOrCancelImportInfo('<%= entry.id %>', true)">
+                    <input class="btn btn-danger product_id_<%= entry.id %>" id="delete_button_id_<%= entry.id %>" type="button" value="Delete"
+                        onclick="handleDeleteImportInfo('<%= entry.id %>')">
+                    <input class="btn btn-primary product_id_<%= entry.id %>" id="save_button_id_<%= entry.id %>" type="button" value="Save" 
+                        onclick="handleSaveUpdateImportInfo('<%= entry.id %>')" hidden>
+                    <input class="btn btn-secondary product_id_<%= entry.id %>" id="cancel_button_id_<%= entry.id %>" type="button" value="Cancel"
+                        onclick="handleUpdateOrCancelImportInfo('<%= entry.id %>', false)" hidden>
+                </td>
+              </tr>
+              <% }) %>
+          </table>
+          </div>
+          <!-- /.col-md-6 -->
+        </div>
+        <!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  <!-- Main Footer -->
+  <%- include('resource/partials/footer') %> 
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+<%- include('resource/partials/required-scripts') %> 
+
+<script>
+  $(function() {
+    const products = document.getElementsByTagName("select");
+    for (let i = 0; i < products.length; i++) {
+      const element = products[i];
+      if (element.id.substr(0, 10) === "product_id" || element.id === "productIdSelect"){
+        let count = 0, option;
+        "<% products.forEach((entry) => { %>"
+          option = document.createElement("option");
+          option.value = "<%= entry.id %>";
+          option.text = "<%= entry.id %> - <%= entry.name %>";
+          element.appendChild(option);
+          
+          if (element.getAttribute("current_product_id") === "<%= entry.id %>")
+            element.selectedIndex = count
+
+          count++;
+        "<% }) %>"
+      }
+    }
+  });
+
+  function handleAddImportInfo() {
+    let productId = document.getElementById("productIdSelect");
+    productId = productId[productId.selectedIndex].value;
+    const quantity = document.getElementById("quantityInput").value;
+    $.ajax({
+      url: '/dashboard/product-imports/<%= importsId %>/add',
+      type: 'POST',
+      data: {
+        productId: productId,
+        quantity: quantity
+      },
+      success: function (result) {
+        window.location.reload();
+      }
+    })
+  }
+
+  function handleUpdateOrCancelImportInfo(importInfoId, isUpdate) {
+    const quantity = document.getElementById("quantity_id_" + importInfoId);
+    const updateButton = document.getElementById("update_button_id_" + importInfoId)
+    const deleteButton = document.getElementById("delete_button_id_" + importInfoId)
+    const saveButton = document.getElementById("save_button_id_" + importInfoId);
+    const cancelButton = document.getElementById("cancel_button_id_" + importInfoId);
+
+    quantity.disabled = !isUpdate;
+    updateButton.hidden = isUpdate;
+    deleteButton.hidden = isUpdate;
+    saveButton.hidden = !isUpdate;
+    cancelButton.hidden = !isUpdate;
+  }
+
+  function handleSaveUpdateImportInfo(importInfoId) {
+    const quantity = document.getElementById("quantity_id_" + importInfoId).value;
+    $.ajax({
+      url: '/dashboard/product-imports/<%= importsId %>/update',
+      type: 'POST',
+      data: {
+        importInfoId: importInfoId,
+        quantity: quantity
+      },
+      success: function (result) {
+        window.location.reload();
+      }
+    })
+  }
+
+  function handleDeleteImportInfo(importInfoId) {
+    if (confirm("Xác nhận xóa?")){
+      $.ajax({
+        url: '/dashboard/product-imports/<%= importsId %>/delete',
+        type: 'POST',
+        data: {
+          importInfoId: importInfoId
+        },
+        success: function (result) {
+          window.location.reload();
+        }
+      })
+    }
+  }
+</script>
+
+</body>
+</html>

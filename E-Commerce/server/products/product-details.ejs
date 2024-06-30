@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('header') %>
+
+<body>
+	
+	<%- include('body-header') %>
+	
+	<section>
+		<div class="container">
+			<div class="row">
+				
+				<%- include('left-sidebar') %>
+				
+				<div class="col-sm-9 padding-right">
+					<div class="product-details"><!--product-details-->
+						<div class="col-sm-5">
+							<div class="view-product">
+								<img src="https://ipfs.infura.io/ipfs/<%= product.imageHash %>" alt="" />
+							</div>
+						</div>
+						<div class="col-sm-7">
+							<div class="product-information"><!--/product-information-->
+								<img src="/images/product-details/new.jpg" class="newarrival" alt="" />
+								<h2><%= product.name %></h2>
+								<div class='starrr' id='product-rating'></div>
+								<p style="display: inline;">(<%= product.ratingLength %> đánh giá)</p>
+								<p><b>Người bán: </b><a href="/accounts/<%= product.username %>"><%= product.fullName %></a></p>
+								<p><b>Mã sản phẩm: </b><%= product.id %></p>
+								<div>
+									<span>
+										<span><%= product.price %> ETH</span>
+										<% if (!product.locked && product.accepted && product.quantity.quantity > product.quantity.purchasedQuantity) { %>
+											<% if (user && user.id !== product.userId) { %>
+												
+												<button id="buy-btn" type="button" class="btn btn-default cart" onclick="handleAddToWishList()" style="margin-left: 0px;">
+													<i class="fa fa-star"></i>
+													Thêm vào mong muốn
+												</button>
+												<br><br>
+												<label>Số lượng:</label>
+												<input id="productAmount" class="form-control" type="number" value="1" min="1" max="<%= product.quantity.quantity - product.quantity.purchasedQuantity %>"/> 
+												<!-- <button type="button" class="btn btn-default cart">
+													<i class="fa fa-shopping-cart"></i>
+													Add to cart
+												</button> -->
+												<button id="buy-btn" type="button" class="btn btn-default cart" onclick="handleAddToCart()">
+													<i class="fa fa-shopping-cart"></i>
+													Thêm vào giỏ
+												</button>
+											<% } %>
+										<% } %>
+									</span>
+								</div>
+								<p>
+									<b>Tình trạng: </b>
+									<% if (product.locked || !product.accepted) { %>
+										<span style="color: red;">Bị khóa</span>
+									<% } else if (product.quantity.quantity <= product.quantity.purchasedQuantity) { %>
+										<span style="color: orangered;">Hết hàng</span>
+									<% } else { %>
+										<span style="color: green;">Còn hàng</span>
+									<% } %>
+								</p>
+								<p><b>Danh mục: </b><a href="/products/search-category/<%= product.categoryId %>"><%= product.categoryName %></a></p>
+								<% if (user) { %>
+									<p style="display: inline;"><b>Đánh giá của bạn: </b></p><div class='starrr' id='rating'></div>
+									<br>
+									<button class="btn btn-danger" onclick="handleReport()"><i class="fa fa-flag-o"></i> Báo cáo</button>
+								<% } %>
+								<% if (user && (user.id == product.userId || user.role == "Admin")) { %>
+									<% const now = new Date(+product.sellerPicksEndTimestamp * 1000) %>
+									<a href="/products/update/<%= product.id %>" class="btn btn-warning" type="button"><i class="fa fa-pencil-square-o"></i> Chỉnh sửa</a>
+									<% if (product.sellerPicksEndTimestamp * 1000 >= new Date()) { %>
+										<div>
+											Hạn đẩy tin đến <b name="timestamp" data-time-type="datetime"><%= product.sellerPicksEndTimestamp * 1000 %></b>.
+										</div>
+									<% } %>
+									<div class="seller-picks">
+										<p><b>Đẩy tin <span>(<%= siteSettings.sellerPicks %> ETH/Ngày)</span>:</b></p>
+										<div>
+											<input id="sellerPicksInput" class="form-control" type="number" value="1" min="1" max="1000"/>
+											<p>Ngày</p>
+											<button class="btn btn-success purchase" onclick="handlePurchaseSellerPicks()"><i class="fa fa-angle-double-up"></i> Đẩy tin</button>
+										</div>
+									</div>
+								<% } %>
+							</div><!--/product-information-->
+						</div>
+					</div><!--/product-details-->
+					
+					<div class="category-tab shop-details-tab"><!--category-tab-->
+						<div class="col-sm-12">
+							<ul class="nav nav-tabs">
+								<li class="active"><a href="#reviews" data-toggle="tab">Bình luận (<%= comments.length %> )</a></li>
+							</ul>
+						</div>
+						<div class="tab-content">
+							<div class="tab-pane fade active in" id="reviews" >
+								<div class="col-sm-12">
+									<% comments.forEach(element => { %>
+									<div class="comments" id="coment_id_<%= element.id %>">
+										<ul>
+											<li><a href="/accounts/<%= element.username %>" style="text-transform: none;"><i class="fa fa-user"></i><%= element.fullName %></a></li>
+											<li><a href="javascript:void(0);"><i class="fa fa-clock-o"></i><span name="timestamp" data-time-type="time"><%= element.time %></span></a></li>
+											<li><a href="javascript:void(0);"><i class="fa fa-calendar-o"></i><span name="timestamp" data-time-type="date"><%= element.time %></span></a></li>
+											<% if (user && (user.id == product.userId || user.role == "Admin")) { %>
+											<li class="pull-right"><a onclick="handleDeleteComment('<%= element.id %>')"><i class="fa fa-times-circle"></i></a></li>
+											<% } %>
+										</ul>
+										<p><%= element.content %> </p>
+									</div>
+									<% }) %>
+									<p><b>Viết bình luận</b></p>
+									
+									<form action="/products/add-comment/<%= product.id %>" method="POST" onsubmit="validateForm();">
+										<textarea class="form-control" name="commentContent" ></textarea>
+										<button id="update-btn" type="submit" class="btn btn-default pull-right">
+											Nhập
+										</button>
+									</form>
+								</div>
+							</div>
+							
+						</div>
+					</div><!--/category-tab-->
+					
+					<div class="recommended_items"><!--recommended_items-->
+						<h2 class="title text-center">Các mặt hàng khác</h2>
+						
+						<div id="recommended-item-carousel" class="carousel slide" data-ride="carousel">
+							<div class="carousel-inner">
+								<div class="item active">
+									<% for( let i = 0; i < 3; i++ ) { %>
+										<% if (products.length > i) { %>
+										<div class="col-sm-4">
+											<div class="product-image-wrapper">
+												<div class="single-products">
+													<div class="productinfo text-center">
+														<a href="/products/<%= products[i].id %>">
+															<img src="https://ipfs.infura.io/ipfs/<%= products[i].imageHash %>" alt="" />
+															<h2><%= products[i].price %> ETH</h2>
+															<p><%= products[i].name %></p>
+														</a>
+														<button type="button" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</button>
+													</div>
+												</div>
+											</div>
+										</div>
+										<% } %>
+									<% } %>
+								</div>
+								<div class="item">
+									<% for( let i = 3; i < 6; i++ ) { %>
+										<% if (products.length > i) { %>
+										<div class="col-sm-4">
+											<div class="product-image-wrapper">
+												<div class="single-products">
+													<div class="productinfo text-center">
+														<a href="/products/<%= products[i].id %>">
+															<img src="https://ipfs.infura.io/ipfs/<%= products[i].imageHash %>" alt="" />
+															<h2><%= products[i].price %> ETH</h2>
+															<p><%= products[i].name %></p>
+														</a>
+														<button type="button" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</button>
+													</div>
+												</div>
+											</div>
+										</div>
+										<% } %>
+									<% } %>
+								</div>
+							</div>
+							 <a class="left recommended-item-control" href="#recommended-item-carousel" data-slide="prev">
+								<i class="fa fa-angle-left"></i>
+							  </a>
+							  <a class="right recommended-item-control" href="#recommended-item-carousel" data-slide="next">
+								<i class="fa fa-angle-right"></i>
+							  </a>			
+						</div>
+					</div><!--/recommended_items-->
+					
+				</div>
+			</div>
+		</div>
+	</section>
+	
+	<%- include('footer') %> 
+	<%- include('web3') %> 
+
+	<script type="text/javascript" src="/js/starrr.js"></script>
+	
+	<script>
+		let contract;
+		$(function() {
+			loadDateFormat();
+			$('#product-rating').starrr({
+				rating: '<%= product.rating %>',
+				readOnly: true
+			});
+	
+			$('#rating').starrr({
+				rating: '<%= product.userRating %>',
+				change: function(e, value) {
+					if (value) {
+						$.ajax({
+							url: "/products/rating",
+							type: "POST",
+							data: {
+								productId: '<%= product.id %>',
+								stars: value
+							},
+							success: function (result) {
+								alert(`Đã đánh giá ${value} sao!`);
+							}
+						})
+					}
+				}
+			});
+
+			loadWeb3();
+		})
+
+		function timeFormat(date) {
+			return (date.getHours() < 10 ?'0':'') + date.getHours() + ":" + (date.getMinutes() < 10 ? '0':'') + date.getMinutes();
+		}
+
+		function dateFormat(date) {
+			return (date.getDate() < 10 ?'0':'') + date.getDate() + "/" + (date.getMonth() < 9?'0':'') + (date.getMonth() + 1) + "/" + date.getFullYear();
+		}
+
+		function loadDateFormat() {
+			const dates = document.getElementsByName("timestamp");
+			dates.forEach(element => {
+				const date = new Date(+element.innerText || element.innerText);
+				if (element.getAttribute("data-time-type") === "datetime")
+					element.innerHTML = timeFormat(date) + '&nbsp&nbsp' + dateFormat(date);
+				else if (element.getAttribute("data-time-type") === "time")
+					element.innerText = timeFormat(date);
+				else
+					element.innerText = dateFormat(date);
+			});
+		}
+		
+		function validateReport() {
+			return confirm("Bạn chắc chắn muốn báo cáo sản phẩm này?")
+		}
+
+		function handleReport() {
+			if (!validateReport()) return;
+			$.ajax({
+				url: "/products/report/<%= product.id %>",
+				type: "POST",
+				success: function (result) {
+					alert("Đã báo cáo!")
+				}
+			})
+		}
+
+		function validateForm() {
+			"<% if (user) { %>"
+				return true;
+			"<% } %>"
+			window.location.href = "/login";
+			event.preventDefault(); 
+			return false;
+		}
+
+		function handleAddToCart() {
+			$.ajax({
+				url: '/cart/add-to-cart',
+				type: 'POST',
+				data: { 
+					productId: "<%= product.id %>",
+					amount: document.getElementById("productAmount").value
+				},
+				success: function (result) {
+					window.location.href = "/cart";
+				}
+			})
+		}
+
+		function handleAddToWishList(){
+			$.ajax({
+				url: '/wish-list/add-to-wish-list',
+				type: 'POST',
+				data: { 
+					productId: "<%= product.id %>"
+				},
+				success: function (result) {
+					window.location.href = "/wish-list";
+				}
+			})
+		}
+		
+		function handleDeleteComment(commentId) {
+			"<% if (user && (user.id === product.userId || user.role === 'Admin')) { %>"
+			$.ajax({
+				url: '/products/delete-comment/' + commentId,
+				type: 'DELETE',
+				success: function (result) {
+					document.getElementById("coment_id_" + commentId).remove();
+				}
+			})
+			"<% } %>"
+		}
+
+		function handlePurchaseSellerPicks() {
+			web3.eth.getAccounts(function (error, result) {
+				if (error)
+					return console.log(error);
+
+				if ("<%= user && user.owner %>" !== result[0]) {
+					return alert("Tài khoản ví hiện tại khác với tài khoản ví đã đăng ký!")
+				}
+
+				const productId = "<%= product.id %>";
+				const quantity = document.getElementById("sellerPicksInput").value;
+				const totalPrice = "<%= siteSettings.sellerPicks %>" * quantity;
+				const siteAddress = "<%= siteSettings.siteAddress %>";
+				contract.methods.sellerPicksPurchase(String(totalPrice), productId, quantity, siteAddress).send({from: result[0], value: web3.utils.toWei(String(totalPrice), 'ether')}).then(function(tx) {
+					alert("Đẩy tin thành công");
+					document.location.reload();
+					console.log(tx);
+				}).catch(function(tx) {
+					console.log(tx);
+				})
+			})
+		}
+	</script>
+
+</body>
+</html>

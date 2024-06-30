@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<!--
+This is a starter template page. Use this page to start your new project from
+scratch. This page gets rid of all links and provides the needed markup only.
+-->
+<html lang="en">
+
+<%- include('resource/partials/header') %> 
+
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+
+  <!-- Navbar -->
+  <%- include('resource/partials/navbar') %> 
+  <!-- /.navbar -->
+
+  <!-- Main Sidebar Container -->
+  <%- include('resource/partials/left-sidebar') %> 
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <%- include('resource/partials/content-header') %> 
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <div class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-info">
+              <div class="inner">
+                <h3 id="productAmount"><%= statistic.productsQuantity %></h3>
+                <p>Tổng hàng hóa</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-bag"></i>
+              </div>
+              <a href="/dashboard/products" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-success">
+              <div class="inner">
+                <h3 id="etherTraded"><%= statistic.etherSpent %> </h3>
+                <p>Ether đã giao dịch</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-cash"></i>
+              </div>
+              <a href="/dashboard/purchase-info-delivered/" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-danger">
+              <div class="inner">
+                <h3 id="productSold"><%= statistic.reports %></h3>
+                <p>Tổng báo cáo mặt hàng</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-android-remove-circle"></i>
+              </div>
+              <a href="/dashboard/product-reports/" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-warning">
+              <div class="inner">
+                <h3 id="newReports"><%= statistic.reportsNew %></h3>
+                <p>Báo cáo mặt hàng mới</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-ios-flag"></i>
+              </div>
+              <a href="/dashboard/product-reports/" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <!-- PRODUCTS CHART -->
+            <div class="card card-primary">
+              <div class="card-header">
+                <h3 class="card-title">Số lượng hàng hóa</h3>
+              </div>
+              <div class="card-body">
+                <canvas id="productsChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <div class="col-md-6">
+            <!-- LICENSES CHART -->
+            <div class="card card-info">
+              <div class="card-header">
+                <h3 class="card-title">Duyệt hàng hóa</h3>
+              </div>
+              <div class="card-body">
+                <canvas id="licensesChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <div class="col-md-6">
+            <!-- ACCOUNTS CHART -->
+            <div class="card card-warning">
+              <div class="card-header">
+                <h3 class="card-title">Tài khoản</h3>
+              </div>
+              <div class="card-body">
+                <canvas id="accountsChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <div class="col-md-6">
+            <!-- PURCHASES CHART -->
+            <div class="card card-danger">
+              <div class="card-header">
+                <h3 class="card-title">Đơn hàng</h3>
+              </div>
+              <div class="card-body">
+                <canvas id="purchasesChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </div>
+        </div>
+      </div>
+    </div><!-- /.row -->
+  </div><!-- /.container-fluid -->
+  <!-- /.content-wrapper -->
+
+  <!-- Main Footer -->
+  <%- include('resource/partials/footer') %> 
+  
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+<%- include('resource/partials/required-scripts') %> 
+
+<!-- ChartJS -->
+<script src="plugins/chart.js/Chart.min.js"></script>
+<!-- page script -->
+<script>
+  $(function () {
+    /* ChartJS
+     * -------
+     * Here we will create a few charts using ChartJS
+     */
+
+    //-------------
+    //- PRODUCTS CHART -
+    //-------------
+    // Get context with jQuery - using jQuery's .get() method.
+    const productsChartCanvas = $('#productsChart').get(0).getContext('2d')
+    const productsData        = {
+      labels: [
+        'Đã bán', 
+        'Còn lại',
+      ],
+      datasets: [
+        {
+          data: [+'<%= statistic.productsPurchasedQuantity %>', +'<%= statistic.productsQuantity - statistic.productsPurchasedQuantity %>'],
+          backgroundColor : ['#17a2b8', '#00a65a'],
+        }
+      ]
+    }
+    const productsOptions     = {
+      maintainAspectRatio : false,
+      responsive : true,
+    }
+    //Create pie or douhnut chart
+    // You can switch between pie and douhnut using the method below.
+    const productsChart = new Chart(productsChartCanvas, {
+      type: 'doughnut',
+      data: productsData,
+      options: productsOptions      
+    })
+    
+    //-------------
+    //- LICENSES CHART -
+    //-------------
+    // Get context with jQuery - using jQuery's .get() method.
+    const licensesChartCanvas = $('#licensesChart').get(0).getContext('2d')
+    const licensesData        = {
+      labels: [
+        'Chưa duyệt', 
+        'Đã duyệt',
+        'Bị từ chối'
+      ],
+      datasets: [
+        {
+          data: [+'<%= statistic.licensesNotDecided %>', +'<%= statistic.licensesAccepted - statistic.licensesRefused %>', +'<%= statistic.licensesRefused %>'],
+          backgroundColor : ['#17a2b8', '#00a65a', '#f56954'],
+        }
+      ]
+    };
+    const licensesOptions     = {
+      maintainAspectRatio : false,
+      responsive : true,
+    }
+    //Create pie or douhnut chart
+    // You can switch between pie and douhnut using the method below.
+    const licensesChart = new Chart(licensesChartCanvas, {
+      type: 'pie',
+      data: licensesData,
+      options: licensesOptions      
+    })
+
+    //-------------
+    //- ACCOUNTS CHART -
+    //-------------
+    // Get context with jQuery - using jQuery's .get() method.
+    const accountsChartCanvas = $('#accountsChart').get(0).getContext('2d')
+    const accountsData        = {
+      labels: [
+        'Chưa kích hoạt', 
+        'Đã kích hoạt',
+        'Bị chặn'
+      ],
+      datasets: [
+        {
+          data: [+'<%= statistic.accountsInactive %>', +'<%= statistic.accountsActive %>', +'<%= statistic.accountsLocked %>'],
+          backgroundColor : ['#17a2b8', '#00a65a', '#f56954'],
+        }
+      ]
+    }
+    const accountsOptions     = {
+      maintainAspectRatio : false,
+      responsive : true,
+    }
+    //Create pie or douhnut chart
+    // You can switch between pie and douhnut using the method below.
+    const accountsChart = new Chart(accountsChartCanvas, {
+      type: 'doughnut',
+      data: accountsData,
+      options: accountsOptions      
+    })
+
+    //-------------
+    //- PURCHASES CHART -
+    //-------------
+    // Get context with jQuery - using jQuery's .get() method.
+    const purchasesChartCanvas = $('#purchasesChart').get(0).getContext('2d')
+    const purchasesData        = {
+      labels: [
+        'Đang giao', 
+        'Đã giao'
+      ],
+      datasets: [
+        {
+          data: [+'<%= statistic.purchasesShipping %>', +'<%= statistic.purchasesDelivered %>'],
+          backgroundColor : ['#17a2b8', '#00a65a'],
+        }
+      ]
+    };
+    const purchasesOptions     = {
+      maintainAspectRatio : false,
+      responsive : true,
+    }
+    //Create pie or douhnut chart
+    // You can switch between pie and douhnut using the method below.
+    const purchasesChart = new Chart(purchasesChartCanvas, {
+      type: 'pie',
+      data: purchasesData,
+      options: purchasesOptions      
+    })
+  })
+</script>
+
+</body>
+</html>

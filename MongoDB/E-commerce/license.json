@@ -1,0 +1,127 @@
+[{
+  "_id": {
+    "$oid": "5f22d46643360c157409b7f5"
+  },
+  "productId": "1",
+  "accepted": true,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff687bc4be8232368f0011c"
+  },
+  "productId": "3",
+  "accepted": true,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff687bd4be8232368f0011d"
+  },
+  "productId": "4",
+  "accepted": true,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff688f14be8232368f0011f"
+  },
+  "productId": "6",
+  "accepted": true,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff689794be8232368f00121"
+  },
+  "productId": "7",
+  "accepted": true,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff68b6e4be8232368f00123"
+  },
+  "productId": "8",
+  "accepted": true,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff68bf24be8232368f00125"
+  },
+  "productId": "9",
+  "accepted": true,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff698e3bc89bd0e0c51d887"
+  },
+  "productId": "10",
+  "accepted": true,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff69b5cbc89bd0e0c51d88e"
+  },
+  "productId": "11",
+  "accepted": true,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff69b5ebc89bd0e0c51d88f"
+  },
+  "productId": "12",
+  "accepted": true,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff69b60bc89bd0e0c51d890"
+  },
+  "productId": "13",
+  "accepted": true,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff69e03bc89bd0e0c51d892"
+  },
+  "productId": "14",
+  "accepted": true,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff72dbfb835a30308f97d29"
+  },
+  "productId": "15",
+  "accepted": false,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62c618ae5d7caa6050ef4c32"
+  },
+  "productId": "16",
+  "accepted": true,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62c7a191e45d356b18e46e65"
+  },
+  "productId": "2",
+  "accepted": true,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62c7a2afe45d356b18e471a5"
+  },
+  "productId": "17",
+  "accepted": true,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62c7a3bee45d356b18e474fc"
+  },
+  "productId": "5",
+  "accepted": true,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62c7a3c3e45d356b18e47513"
+  },
+  "productId": "18",
+  "accepted": true,
+  "__v": 0
+}]

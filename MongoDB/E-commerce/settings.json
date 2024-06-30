@@ -1,0 +1,9 @@
+[{
+  "_id": {
+    "$oid": "5fdac560e81fbf387cf642df"
+  },
+  "commission": 10,
+  "sellerPicks": 0.002,
+  "siteAddress": "0x227655a8D5b3229221b9eC76e15b4f214ec7aEAc",
+  "__v": 0
+}]

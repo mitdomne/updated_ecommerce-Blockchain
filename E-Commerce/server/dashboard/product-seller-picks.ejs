@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<!--
+This is a starter template page. Use this page to start your new project from
+scratch. This page gets rid of all links and provides the needed markup only.
+-->
+<html lang="en">
+
+<%- include('resource/partials/header') %> 
+
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+
+  <!-- Navbar -->
+  <%- include('resource/partials/navbar') %> 
+  <!-- /.navbar -->
+
+  <!-- Main Sidebar Container -->
+  <%- include('resource/partials/left-sidebar') %> 
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <%- include('resource/partials/content-header') %> 
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <div class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-12">
+            <h3>Lọc theo hiệu lực</h3>
+            <select onchange="handleSearch()" id="statusSelect">
+              <option value="0">Tất cả</option>
+              <option value="1" selected>Còn hiệu lực</option>
+              <option value="2">Hết hiệu lực</option>
+            </select>
+            <table class="table table-hover" id="productTable">
+              <thead>
+                <tr>
+                  <th>Id</th>
+                  <th>Tên</th>
+                  <th>Loại</th>
+                  <th>Hình ảnh</th>
+                  <th>Hạn đẩy tin</th>
+                  <th>Tình trạng</th>
+                  <th>Edit</th>
+                </tr>
+              </thead>
+              <% const tzoffset = (new Date()).getTimezoneOffset() * 60000 %>
+              <% products.forEach((entry) => { %>
+              <tr>
+                <td><a href="/products/<%= entry.id %>"><%= entry.id %></a></td>
+                <td><%= entry.name %></td>
+                <td class="category"><%= entry.categoryId %></td>
+                <td>
+                  <img src="https://ipfs.infura.io/ipfs/<%= entry.imageHash %>" id="imageHash_id_<%= entry.id %>" style="max-width: 100px; max-height: 100px;object-fit: scale-down;">
+                </td>
+                <td class="seller-pick-timestamp">
+                  <% const now = new Date(entry.sellerPicksEndTimestamp * 1000) %>
+                  <input id="seller_picks_id_<%= entry.id %>" class="product_id_<%= entry.id %>" type="datetime-local" value="<%= (new Date(now - tzoffset)).toISOString().slice(0, -1) %>" disabled>
+                </td>
+                <td class="seller-picks-status">
+                  <% if (now >= new Date()) { %>
+                    <span style="color: green;">Còn hiệu lực</span>
+                  <% } else { %>
+                    <span style="color: red;">Hết hạn</span>
+                  <% } %> 
+                </td>
+                <td>
+                  <input class="btn btn-primary product_id_<%= entry.id %>" id="update_button_id_<%= entry.id %>" type="button" value="Update"
+                    onclick="handleUpdate('<%= entry.id %>')">
+                  <input class="btn btn-primary product_id_<%= entry.id %>" id="save_button_id_<%= entry.id %>" type="button" value="Save" 
+                    onclick="handleSaveUpdate('<%= entry.id %>')" hidden>
+                  <input class="btn btn-secondary product_id_<%= entry.id %>" id="cancel_button_id_<%= entry.id %>" type="button" value="Cancel"
+                    onclick="handleCancelUpdate('<%= entry.id %>')" hidden>
+                </td>
+              </tr>
+              <% }) %>
+          </table>
+          </div>
+          <!-- /.col-md-6 -->
+        </div>
+        <!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  <!-- Main Footer -->
+  <%- include('resource/partials/footer') %> 
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+<%- include('resource/partials/required-scripts') %> 
+<%- include('resource/partials/web3') %> 
+
+<script>
+  let contract;
+  $(function() {
+    handleSearch();
+    loadWeb3();
+  });
+
+  function handleUpdate(productId) {
+    const productInfo = document.getElementsByClassName("product_id_" + productId);
+    for (let i = 0; i < productInfo.length; i++) {
+      const element = productInfo[i];
+
+      if (element.id === "update_button_id_" + productId) 
+        element.hidden = true;
+      else{
+        element.hidden = false;
+        element.disabled = false;
+      }
+    }
+  }
+
+  function handleCancelUpdate(productId) {
+    const productInfo = document.getElementsByClassName("product_id_" + productId);
+    
+    for (let i = 0; i < productInfo.length; i++) {
+      const element = productInfo[i];
+      if (element.id === "update_button_id_" + productId) 
+        element.hidden = false;
+      else if (element.id === "cancel_button_id_" + productId || element.id === "save_button_id_" + productId) {
+        element.hidden = true;
+      }
+      else {
+        element.disabled = true;
+      }
+    }
+  }
+
+  async function handleSaveUpdate(productId) {
+    const sellerPicks = parseInt(+new Date(document.getElementById("seller_picks_id_" + productId).value) / 1000);
+
+    web3.eth.getAccounts(function (error, result) {
+      if (error)
+        console.log(error);
+      else {
+        if ("<%= user.owner %>" != result[0])
+          return alert("Tài khoản ví hiện tại khác với tài khoản ví đã đăng ký!")
+        contract.methods.updateProductSellerPicks(productId, sellerPicks).send({from: result[0]}).then(function(tx) {
+          window.location.reload();
+          console.log(tx);
+        }).catch(function(tx) {
+          console.log(tx.message);
+        })
+      }
+    })
+  }
+
+  function handleSearch() {
+    const table = document.getElementById("productTable");
+    const select = document.getElementById("statusSelect");
+    const trs = table.getElementsByTagName("tr");
+
+    for (let i = 1; i < trs.length; i++) {
+      const input = trs[i].querySelector(".seller-pick-timestamp input");
+      switch (select.selectedIndex) {
+        case 0:
+          trs[i].hidden = false;
+          break;
+        case 1:
+          if (new Date(input.value) < new Date())
+            trs[i].hidden = true;
+          else trs[i].hidden = false;
+          break;
+        case 2:
+          if (new Date(input.value) >= new Date())
+            trs[i].hidden = true;
+          else trs[i].hidden = false;
+          break;
+        default:
+          break;
+      }
+    }
+  }
+</script>
+
+</body>
+</html>

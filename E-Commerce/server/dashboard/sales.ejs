@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<!--
+This is a starter template page. Use this page to start your new project from
+scratch. This page gets rid of all links and provides the needed markup only.
+-->
+<html lang="en">
+
+<%- include('resource/partials/header') %> 
+
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+
+  <!-- Navbar -->
+  <%- include('resource/partials/navbar') %> 
+  <!-- /.navbar -->
+
+  <!-- Main Sidebar Container -->
+  <%- include('resource/partials/left-sidebar') %> 
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <%- include('resource/partials/content-header') %> 
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <div class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-12">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Id</th>
+                  <th>Tên</th>
+                  <th>Mã nhập</th>
+                  <th>% giảm</th>
+                  <th>Số lượng</th>
+                  <th>Đã dùng</th>
+                  <th>Ngày bắt đầu</th>
+                  <th>Ngày kết thúc</th>
+                  <th>Edit</th>
+                </tr>
+              </thead>
+              <tr>
+                <form action="/dashboard/sales/add" method="POST" onsubmit="handleAddSale()">
+                  <td></td>
+                  <td><input type="text" class="form-control form-control-sm" id="addSaleName" name="saleName" size="10"></td>
+                  <td><input type="text" class="form-control form-control-sm" id="addSaleCode" name="saleCode" size="5"></td>
+                  <td><input type="number" class="form-control form-control-sm" id="addSaleOff" name="saleOff" min='0' max="100"></td>
+                  <td><input type="number" class="form-control form-control-sm" id="addSaleQuantity" name="saleQuantity" min="0" max="1000000"></td>
+                  <td></td>
+                  <td><input type="date" class="form-control form-control-sm" id="addSaleStartDate" name="saleStartDate"></td>
+                  <td><input type="date" class="form-control form-control-sm" id="addSaleEndDate" name="saleEndDate"></td>
+                  <td>
+                      <input class="btn btn-primary" type="submit" value="Add">
+                  </td>
+              </form>
+              </tr>
+              <% sales.forEach((entry) => { %>
+              <tr>
+                <form action="/dashboard/sales/update" method="POST" onsubmit="handleSave('<%= entry.id%>');">
+                  <td><div class="id" ><%= entry.id %></div></td>
+                  <input name="saleId" value="<%= entry.id %>" hidden>
+                  <td><input class="sale_id_<%= entry.id %> form-control form-control-sm" type="text" id="name_id_<%= entry.id %>" name="saleName" value="<%= entry.saleName %>" size="10" disabled></td>
+                  <td><input class="sale_id_<%= entry.id %> form-control form-control-sm" type="text" id="code_id_<%= entry.id %>" name="saleCode" value="<%= entry.saleCode %>" size="5" disabled></td>
+                  <td><input class="form-control form-control-sm" type="text"  value="<%= entry.saleOff %>" size="1" disabled></td>
+                  <td><input class="sale_id_<%= entry.id %> form-control form-control-sm" type="number" id="quantity_id_<%= entry.id %>" name="saleQuantity" min="0" max="1000000" value="<%= entry.quantity %>" size="3" disabled></td>
+                  <td><input class="form-control form-control-sm" type="text" value="<%= entry.usedQuantity %>" size="1" disabled></td>
+                  <td><input class="date sale_id_<%= entry.id %> form-control form-control-sm" type="date" id="start_date_id_<%= entry.id %>" name="saleStartDate" value="<%= entry.startDate %>" disabled></td>
+                  <td><input class="date sale_id_<%= entry.id %> form-control form-control-sm" type="date" id="end_date_id_<%= entry.id %>" name="saleEndDate" value="<%= entry.endDate %>" disabled></td>
+                  <td>
+                      <input class="btn btn-primary sale_id_<%= entry.id %>" id="update_button_id_<%= entry.id %>" type="button" value="Update"
+                        onclick="handleUpdateSale('<%= entry.id %>')">
+                      <input class="btn btn-primary sale_id_<%= entry.id %>" id="save_button_id_<%= entry.id %>" type="submit" value="Save" hidden>
+                      <input class="btn btn-secondary sale_id_<%= entry.id %>" id="cancel_button_id_<%= entry.id %>" type="button" value="Cancel"
+                        onclick="handleCancelUpdateSale('<%= entry.id %>')" hidden>
+                      <input class="btn btn-danger sale_id_<%= entry.id %>" id="delete_button_id_<%= entry.id %>" type="button" value="Delete"
+                        onclick="handleDeleteSale('<%= entry.id %>')">
+                  </td>
+                </form>
+              </tr>
+              <% }) %>
+          </table>
+          </div>
+          <!-- /.col-md-6 -->
+        </div>
+        <!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  <!-- Main Footer -->
+  <%- include('resource/partials/footer') %> 
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+<%- include('resource/partials/required-scripts') %> 
+
+<script>
+  $(function() {
+    const dates = document.getElementsByClassName('date');
+    for (let i = 0; i < dates.length; i++) {
+      const element = dates[i];
+      element.setAttribute('value', formatDate(element.getAttribute('value')));
+    };
+  })
+
+  function formatDate(date) {
+    const d = new Date(date);
+    let month = '' + (d.getMonth() + 1),
+      day = '' + d.getDate(),
+      year = d.getFullYear();
+
+    if (month.length < 2) 
+      month = '0' + month;
+    if (day.length < 2) 
+      day = '0' + day;
+
+    return [year, month, day].join('-');
+  }
+  
+  $( "input[name='saleCode']" ).bind('input', function() {
+    this.value = this.value.trim().toUpperCase();
+  });
+
+  function checkValid(saleId, saleName, saleCode, saleOff, saleQuantity, saleStartDate, saleEndDate) {
+    if (!saleName || !saleCode || !saleOff || !saleQuantity || !saleStartDate || !saleEndDate) {
+      alert('Bạn chưa nhập đầy đủ thông tin!');
+      return false;
+    }
+    
+    if (saleStartDate > saleEndDate) {
+      alert('Ngày không hợp lệ!');
+      return false;
+    }
+
+    let checkCode = null;
+    $.ajax({
+      url: `/dashboard/sales/check-code?id=${saleId}&code=${saleCode}&startDate=${saleStartDate}&endDate=${saleEndDate}`,
+      type:'GET',
+      async: false,
+      success: function (response) {
+        checkCode = response;
+      }
+    })
+
+    if (checkCode !== 'Ok') {
+      alert(checkCode);
+      return false;
+    }
+    
+    return true;
+  }
+  
+  function handleAddSale(){
+    const saleName = document.getElementById('addSaleName').value;
+    const saleCode = document.getElementById('addSaleCode').value;
+    const saleOff = document.getElementById('addSaleOff').value;
+    const saleQuantity = document.getElementById('addSaleQuantity').value;
+    const saleStartDate = new Date(document.getElementById('addSaleStartDate').value);
+    const saleEndDate = new Date(document.getElementById('addSaleEndDate').value);
+    saleEndDate.setDate(saleEndDate.getDate() + 1);
+
+    if (!checkValid(null, saleName, saleCode, saleOff, saleQuantity, saleStartDate, saleEndDate)) {
+      event.preventDefault();
+      return false;
+    }
+
+    return true;
+  }
+
+  function handleUpdateSale(saleId) {
+    const sales = document.getElementsByClassName("sale_id_" + saleId);
+    for (let i = 0; i < sales.length; i++) {
+      const element = sales[i];
+
+      if (element.id === "update_button_id_" + saleId || element.id === "delete_button_id_" + saleId) 
+        element.hidden = true;
+      else {
+        element.hidden = false;
+        element.disabled = false;
+      }
+    }
+  }
+
+  function handleCancelUpdateSale(saleId) {
+    const sales = document.getElementsByClassName("sale_id_" + saleId);
+    
+    for (let i = 0; i < sales.length; i++) {
+      const element = sales[i];
+      if (element.id === "update_button_id_" + saleId || element.id === "delete_button_id_" + saleId)
+        element.hidden = false;
+      else if (element.id === "cancel_button_id_" + saleId || element.id === "save_button_id_" + saleId){
+        element.hidden = true;
+      }
+      else {
+        element.disabled = true;
+      }
+    }
+  }
+
+  function handleSave(saleId) {
+    const saleName = document.getElementById('name_id_' + saleId).value;
+    const saleCode = document.getElementById('code_id_' + saleId).value;
+    const saleQuantity = document.getElementById('quantity_id_' + saleId).value;
+    const saleStartDate = new Date(document.getElementById('start_date_id_' + saleId).value);
+    const saleEndDate = new Date(document.getElementById('end_date_id_' + saleId).value);
+    
+    if (!checkValid(saleId, saleName, saleCode, 1, saleQuantity, saleStartDate, saleEndDate)) {
+      event.preventDefault();
+      return false;
+    }
+
+    return true;
+  }
+
+  function handleDeleteSale(saleId) {
+    if (confirm('Bạn có chắc muốn xóa khuyến mãi này?'))
+      $.ajax({
+        url: `/dashboard/sales`,
+        type:'DELETE',
+        data: {
+          saleId: saleId
+        },
+        success: function (response) {
+          console.log(response)
+          window.location.reload();
+        }
+      })
+  }
+</script>
+
+</body>
+</html>

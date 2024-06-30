@@ -1,0 +1,11 @@
+https://ethereum.stackexchange.com/questions/39840/how-can-i-persist-my-local-development-ethereum-blockchain-data/59691
+
+ganache-cli -d --db path/of/local/folder/here -i 123456
+-d because we want to tell ganache to keep mnemonic deterministic. And not generate new accounts and new mnemonic every time ganache is restarted
+-db so that the state of blockchain gets stored in a local folder on your machine. When ganache-cli is restarted if you use the same command which thereby reads from the local folder, your blockchain state is persisted and read without loss
+-i so that a random networkID is not selected everytime you restart ganache
+Make sure that the folder already exists where you intend ganache to store its data
+
+ganache-cli -d --db "./db" -i 123456
+
+ganache-cli -p 8545

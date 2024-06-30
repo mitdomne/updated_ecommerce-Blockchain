@@ -1,0 +1,28 @@
+<div class="col-sm-3">
+  <div class="left-sidebar">
+    <h2>Danh mục</h2>
+    <div class="panel-group category-products" id="accordian"><!--category-productsr-->
+      <% categories.forEach(element => { %>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h4 class="panel-title"><a href="/products/search-category/<%= element.id %>"><%= element.name %></a></h4>
+        </div>
+      </div>						
+      <% }) %>
+    </div><!--/category-products-->
+    
+    <div class="price-range"><!--price-range-->
+      <h2>Tìm theo giá</h2>
+      <div class="well text-center">
+        <input type="text" class="span2" value="" data-slider-min="0" data-slider-max="50" data-slider-step="1" data-slider-value="[0,10]" id="sl2" ><br />
+        <b class="pull-left">0 ETH</b> <b class="pull-right">50 ETH</b>
+        <button type="button" class="btn btn-default get" onclick="handleSearchByPriceRange()">Tìm</button>
+      </div>
+    </div><!--/price-range-->
+    
+    <div class="shipping text-center"><!--shipping-->
+      <img src="/images/home/shipping.jpg" alt="" style="width:270px;height: 329px;"/>
+    </div><!--/shipping-->
+  
+  </div>
+</div>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('header') %>
+
+<body>
+	
+	<%- include('body-header') %>
+	
+	<section id="form"><!--form-->
+		<div class="container">
+			<div class="row align-items-center">
+				<div class="col-sm-12">
+					<div class="login-form" id="login_container">
+						<h2>CẬP NHẬT SẢN PHẨM</h2>
+						<form>
+							<div class="form-group col-sm-6">
+								<label>ID</label>
+								<input class="form-control" type="text" value="<%= product.id %>" disabled>
+							</div>
+							<div class="form-group col-sm-6">
+								<label>Tên sản phẩm</label>
+								<input class="form-control" type="text" id='productName' value="<%= product.name %>">
+							</div>
+							<div class="form-group col-sm-6">
+								<label>Danh mục</label>
+								<select class="form-control" id="productCategoryId" current_category_id=<%= product.categoryId %>></select>
+							</div>
+							<div class="form-group col-sm-6">
+								<label>Giá (ETH)</label>
+								<input class="form-control" type="number" id='productPrice' value="<%= product.price %>">
+							</div>
+							<div class="form-group col-sm-6">
+								<label>Số lượng</label>
+								<input class="form-control" type="number" value="<%= quantity.quantity %>" disabled>
+							</div>
+							<div class="form-group col-sm-6">
+								<label>Đã bán</label>
+								<input class="form-control" type="number" name='productPurchasedAmount' value="<%= quantity.purchasedQuantity %>" disabled>
+							</div>
+							<div class="form-group col-sm-6">
+								<label>Người bán</label>
+								<input class="form-control" type="text" name='productUserId' value="<%= product.username %>" disabled>
+							</div>
+							<div class="form-group col-sm-6">
+								<label>Ảnh sản phẩm</label>
+								<input id="productImageHashInput" class="form-control" type="file">
+								<img src="https://ipfs.infura.io/ipfs/<%= product.imageHash %>" id="productImageHash" name="productImageHash" style="max-width: 150px; max-height: 150px; object-fit: scale-down;">
+								<input class="form-control" id="productImageHashHiddenInput" value="<%= product.imageHash %>" type="hidden">
+							</div>
+						</form>
+						<button id="save_button" class="btn update-button" onclick="updateButtonClicked()">SAVE</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section><!--/form-->
+	
+	<%- include('footer') %> 
+	<%- include('ipfs') %> 
+	<%- include('web3') %> 
+	
+	<script>
+		let contract;
+		$(function() {
+			let count = 0;
+			const categories = document.getElementById("productCategoryId");
+			let option;
+			"<% categories.forEach((element) => { %>"
+				option = document.createElement("option");
+				option.value = "<%= element.id %>";
+				option.text = "<%= element.name %>";
+				categories.appendChild(option);
+				
+				if (categories.getAttribute("current_category_id") == "<%= element.id %>")
+					categories.selectedIndex = count;
+					
+				count++;
+			"<% }) %>"
+			loadWeb3();
+		})
+
+		const ipfs = window.IpfsHttpClient('ipfs.infura.io', '5001', { protocol: 'https' });
+		$("#productImageHashInput").on("change", function() {
+			document.getElementById("save_button").disabled = true;
+			const reader = new FileReader();
+			reader.onload = function (e) {
+				const to_buffer = buffer.Buffer(reader.result);
+				ipfs.add(to_buffer, (err, result) => {
+					console.log(err, result);
+
+					document.getElementById("productImageHash").src = "https://ipfs.infura.io/ipfs/" + result[0].hash;
+					document.getElementById("save_button").disabled = false;
+					document.getElementById("productImageHashHiddenInput").value = result[0].hash;
+				})
+			}
+			reader.readAsArrayBuffer(this.files[0]);
+		});
+
+		function updateButtonClicked() {
+			const name = document.getElementById("productName").value;
+			const categoryId = document.getElementById("productCategoryId").value;
+			const price = document.getElementById("productPrice").value;
+			const imageHash = document.getElementById("productImageHashHiddenInput").value;
+
+			web3.eth.getAccounts(function (error, result) {
+				if (error)
+					console.log(error);
+				else {
+					if ("<%= user.owner %>" != result[0]) {
+						alert("Tài khoản ví hiện tại khác với tài khoản ví đã đăng ký!")
+						return;
+					}
+					contract.methods.updateProduct("<%= product.id %>", name, categoryId, price, imageHash, "<%= product.userId %>", "<%= product.isDeleted %>").send({from: result[0]})
+					.then(function(tx){
+						alert("Cập nhật sản phẩm thành công");
+						window.location.href = '/products/<%= product.id %>';
+						console.log(tx);
+					}).catch(function(tx){
+						console.log(tx);
+					})
+				}
+			})
+		}
+	</script>
+	
+</body>
+</html>

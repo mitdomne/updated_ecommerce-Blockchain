@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('header') %>
+
+<body>
+
+	<%- include('body-header') %>	
+
+	<section>
+		<div class="container">
+			<div class="row">
+
+				<%- include('left-sidebar') %>
+
+				<div class="col-sm-9 padding-right">
+					<div class="product-details"><!--product-details-->
+						<div class="col-sm-5">
+							<div class="view-product">
+								<img src="https://ipfs.infura.io/ipfs/<%= account.avatar %>" alt="" style="object-fit: scale-down;" />
+							</div>
+
+						</div>
+						<div class="col-sm-7">
+							<div class="product-information"><!--/product-information-->
+								<h2><%= account.lastName %> <%= account.firstName %></h2>
+								<p><b>Tên đăng nhập:</b> <%= account.username %></p>
+								<p><b>Địa chỉ ví:</b> <%= account.owner %></p>
+								<p><b>Vai trò:</b> <%= account.role %></p>
+								<% if (sell > 0) { %>
+									<div>
+										<a href="#companyprofile" onclick="changeNameTabCompanyprofile()"><%= sell %> sản phẩm đăng bán</a>
+										<p>Ether nhận được từ bán: <%= revenue %> ETH </p>
+									</div>
+								<% } %>
+								<div>
+									<a href="#reviews" onclick="changeNameTabReviews()"><%= buy %> sản phẩm đã mua</a>
+									<p>Ether dùng để mua: <%= spent %> ETH </p>
+								</div>
+								<% if (user && (user.id == account.id || user.role == "Admin")) { %>
+									<a href="/accounts/update/<%= account.username %>" class="btn btn-warning" type="button"><i class="fa fa-pencil-square-o"></i> Chỉnh sửa</a>
+								<% } %>
+							</div><!--/product-information-->
+						</div>
+					</div><!--/product-details-->
+					
+					<% if (user && (user.id == account.id)) { %>
+					<div class="category-tab shop-details-tab"><!--category-tab-->
+						<div class="col-sm-12">
+							<ul class="nav nav-tabs">
+								<li class="active"><a href="#reviews" data-toggle="tab">Lịch sử mua</a></li>
+								<li style="display: none;"><a href="#buyInfoDetails" data-toggle="tab"></a></li>
+								<% if (user.role != 'Member') { %>
+									<li><a href="#sellinfos" data-toggle="tab">Đơn hàng</a></li>
+									<li><a href="#companyprofile" data-toggle="tab">Sản phẩm đã duyệt</a></li>
+									<li><a href="#details" data-toggle="tab">Sản phẩm chờ duyệt</a></li>
+									<li><a href="#tag" data-toggle="tab">Sản phẩm bị từ chối</a></li>
+								<% } %>
+							</ul>
+						</div>
+						<div class="tab-content">
+							<div class="tab-pane fade active in" id="reviews" >
+								<div class="col-sm-12">
+									<table class="table table-hover">
+										<thead>
+											<tr>
+												<th>Mã mua hàng</th>
+												<th>Tổng tiền (ETH)</th>
+												<th>Thời gian thanh toán</th>
+												<th>Thời gian giao</th>
+												<th>Mã giao hàng</th>
+												<th>Tình trạng</th>
+												<th>Chi tiết</th>
+											</tr>
+										</thead>
+										<% purchaseInfos.forEach((element) => { %>
+										<tr>
+											<td><%= element.id %></td>
+											<td><%= element.totalPrice %></td>
+											<td name="timestamp"><%= element.shipTimestamp %></td>
+											<td name="timestamp"><%= element.deliverTimestamp %></td>
+											<td><b><%= element.pin %></b></td>
+											<td name="status"><%= element.status %></td>
+											<td><a href="javascript:void(0);" onclick="showDetails('<%= element.id %>')">Xem</a></td>
+										</tr>
+										<% }) %>
+									</table>
+								</div>
+							</div>
+
+							<div class="tab-pane fade" id="buyInfoDetails" >
+								<div class="col-sm-12">
+									<table id="tableBuyInfoDetails" class="table table-hover">
+										<thead>
+											<tr>
+												<th>Mã hàng</th>
+												<th>Tên hàng</th>
+												<th>Số lượng</th>
+												<th>Đơn giá</th>
+												<th>Tổng giá (ETH)</th>
+											</tr>
+										</thead>
+										<tbody></tbody>
+									</table>
+									<h5 id="saleCodeLabel">Mã khuyến mãi: <span id="saleCode" style="color: chartreuse;"></span></h5>
+									<h5 id="saleOffLabel">Giảm: <span id="saleOff" style="color: chartreuse;"></span></h5>
+									<h3>Tổng tiền: 
+										<span id="buyTotalPriceSale" style="color: silver; text-decoration: line-through;"></span>
+										<span id="buyTotalPrice" style="color: chartreuse;">0</span>
+									</h3>
+								</div>
+							</div>
+
+							<% if (user.role != "Member") { %>
+							<div class="tab-pane fade" id="sellinfos" >
+								<div class="col-sm-12">
+									<table class="table table-hover">
+										<thead>
+											<tr>
+												<th>Mã bán hàng</th>
+												<th>Người mua</th>
+												<th>Số điện thoại</th>
+												<th>Địa chỉ</th>
+												<th>Tổng tiền (ETH)</th>
+												<th>Thời gian thanh toán</th>
+												<th>Thời gian giao</th>
+												<th>Tình trạng</th>
+												<th>Mã giao hàng</th>
+												<th>Xác nhận</th>
+												<th>Chi tiết</th>
+											</tr>
+										</thead>
+										<% sellInfos.forEach(element => { %>
+										<tr>
+											<td><%= element.id %></td>
+											<td><a href="/accounts/<%= element.buyerUsername %>"><%= element.buyer.lastName + ' ' + element.buyer.firstName %></a></td>
+											<td><%= element.phoneNumber %></td>
+											<td><%= element.userAddress %></td>
+											<td><%= element.totalPrice %></td>
+											<td name="timestamp"><%= element.shipTimestamp %></td>
+											<td name="timestamp"><%= element.deliverTimestamp %></td>
+											<td name="status" id="status_id_<%= element.id %>"><%= element.status %></td>
+											<% if (element.status == "Đang giao") { %>
+												<td><input maxlength="4" class="form-control input-sm" size="6" id="pin_id_<%= element.id %>"></td>
+												<td><button id="pin_button_id_<%= element.id %>" class="btn btn-warning" style="margin-top: 0px;" onclick="handleDeliverButton('<%= element.id %>')">Nhập mã</button></td>
+											<% } else { %>
+											<td></td>
+											<td></td>
+											<% } %>
+											<td><a href="javascript:void(0);" onclick="showDetails('<%= element.id %>')">Xem</a></td>
+										</tr>
+										<% }) %>
+									</table>
+								</div>
+							</div>
+							<div class="tab-pane fade" id="companyprofile" >
+								<% acceptedProducts.forEach(element => { %>
+								<div class="col-sm-3">
+									<div class="product-image-wrapper">
+										<div class="single-products">
+											<div class="productinfo text-center">
+												<a href="/products/<%= element.id %>">
+													<img src="https://ipfs.infura.io/ipfs/<%= element.imageHash %>" alt="<%= element.name %>" />
+													<h2><%= element.price %> ETH</h2>
+													<p><%= element.name %></p>
+												</a>
+											</div>
+										</div>
+									</div>
+								</div>
+								<% }) %>
+							</div>
+
+							<div class="tab-pane fade" id="details" >
+								<% waitingProducts.forEach(element => { %>
+								<div class="col-sm-3">
+									<div class="product-image-wrapper">
+										<div class="single-products">
+											<div class="productinfo text-center">
+												<a href="/products/<%= element.id %>">
+													<img src="https://ipfs.infura.io/ipfs/<%= element.imageHash %>" alt="<%= element.name %>" />
+													<h2><%= element.price %> ETH</h2>
+													<p><%= element.name %></p>
+												</a>
+											</div>
+										</div>
+									</div>
+								</div>
+								<% }) %>
+							</div>
+							
+							<div class="tab-pane fade" id="tag" >
+								<% refusedProducts.forEach(element => { %>
+								<div class="col-sm-3">
+									<div class="product-image-wrapper">
+										<div class="single-products">
+											<div class="productinfo text-center">
+												<a href="/products/<%= element.id %>">
+													<img src="https://ipfs.infura.io/ipfs/<%= element.imageHash %>" alt="<%= element.name %>" />
+													<h2><%= element.price %> ETH</h2>
+													<p><%= element.name %></p>
+												</a>
+											</div>
+										</div>
+									</div>
+								</div>
+								<% }) %>
+							</div>
+							<% } %>
+						</div>
+					</div><!--/category-tab-->
+					<% } %>
+				</div>
+			</div>
+		</div>
+	</section>
+	
+	<%- include('footer') %> 
+	<%- include('web3') %> 
+	
+	<script>
+		"<% if (user && (user.id == account.id)) { %>"
+			let contract;
+			$(function() {
+				loadDateFormat();
+
+				"<% if (user.role !== 'Member') { %>"
+					loadStatusColor();
+				"<% } %>"
+				loadWeb3();
+			});
+
+			function loadDateFormat() {
+				const dates = document.getElementsByName("timestamp");
+				dates.forEach(element => {
+					if (element.innerHTML > 0) {
+						const date = new Date(element.innerHTML * 1000)
+						element.innerHTML = (date.getHours() < 10 ? '0':'') + date.getHours() + ":" + (date.getMinutes() < 10 ? '0':'') + date.getMinutes() + "&nbsp&nbsp" + (date.getDate() < 10 ? '0':'') + date.getDate() + "/" + (date.getMonth() < 9 ? '0':'') + (date.getMonth() + 1) + "/" + date.getFullYear()
+					}
+					else element.innerHTML = "";
+				});
+			}
+
+			"<% if (user.role != 'Member') { %>"
+			function loadStatusColor() {
+				const statuses = document.getElementsByName("status");
+				statuses.forEach(element => {
+					if (element.innerHTML == "Đang giao")
+						element.style.color = "#FE980F";
+					else 
+						element.style.color = "#28a745"
+				});
+			}
+
+			function handleDeliverButton(id) {
+				const pin = document.getElementById("pin_id_" + id).value;
+
+				web3.eth.getAccounts(function (error, result) {
+					if (error)
+						console.log(error);
+					else {
+						if ("<%= user.owner %>" != result[0]) {
+							alert("Tài khoản ví hiện tại khác với tài khoản ví đã đăng ký!")
+							return;
+						}
+						contract.methods.comfirmDelivered(id, pin).send({from: result[0]}).then(function(tx){
+							alert("Xác nhận giao hàng thành công!")
+							const status = document.getElementById("status_id_" + id)
+							status.innerHTML = "Đã giao"
+							status.style.color = "#28a745"
+							document.getElementById("pin_id_" + id).remove()
+							document.getElementById("pin_button_id_" + id).remove()
+							console.log(tx);
+						}).catch(function(tx){
+							console.log(tx);
+						})
+					}
+				})
+			}
+			"<% } %>"
+		"<% } %>"
+
+		function changeNameTabCompanyprofile(){
+			$('.nav-tabs a[href="#companyprofile"]').tab('show')
+		}
+
+		function changeNameTabReviews(){
+			$('.nav-tabs a[href="#reviews"]').tab('show')
+		}
+
+		function showDetails(sellInfoId) {
+			$.ajax({
+				url: '/accounts/update/get-sell-info-details?sellInfoId=' + sellInfoId,
+				type:'GET',
+				success: function (response) {
+					const table = document.getElementById("tableBuyInfoDetails");
+					const thead = table.firstElementChild;
+					const tbody = table.lastElementChild;
+					let totalPrice = 0;
+					tbody.innerHTML = '';
+					
+					for (let i = 1; i < response.length; i++) {
+						const element = response[i];
+						const tr = document.createElement("tr");
+						for (const detail in element) {
+							const th = document.createElement("td");
+							if (detail === "productId")
+								th.innerHTML = "<a href='/products/" + element[detail] + "'>" + element[detail] + " </a>";
+							else th.innerText = element[detail];
+							tr.appendChild(th);	
+						}
+						const th = document.createElement("td");
+						const productPrice = element.amount * element.unitPrice
+						totalPrice += productPrice;
+						th.innerText = productPrice;
+						tr.appendChild(th);
+						tbody.appendChild(tr);
+					}
+
+					const totalPriceSale = document.getElementById("buyTotalPriceSale");
+					const saleCodeLabel = document.getElementById("saleCodeLabel");
+					const saleOffLabel = document.getElementById("saleOffLabel");
+					const sale = response[0];
+
+					if (Object.keys(sale).length === 0 && sale.constructor === Object) {	
+						totalPriceSale.innerText = "";
+						saleCodeLabel.hidden = true;
+						saleOffLabel.hidden = true;
+					} else {
+						totalPriceSale.innerText = totalPrice + " ETH";
+						totalPrice = totalPrice - totalPrice * sale.saleOff / 100;
+						saleCodeLabel.hidden = false;
+						saleOffLabel.hidden = false;
+						document.getElementById("saleCode").innerText = sale.saleCode;
+						document.getElementById("saleOff").innerText = sale.saleOff + "%";
+					}
+
+					document.getElementById("buyTotalPrice").innerText = totalPrice + " ETH";
+					$('.nav-tabs a[href="#buyInfoDetails"]').tab('show')
+				}
+			})
+		}
+	</script>
+
+</body>
+</html>

@@ -1,0 +1,294 @@
+<script src="/js/jquery.js"></script>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<script src="/js/bootstrap.min.js"></script>
+<!------ Include the above in your HEAD tag ---------->
+
+<!DOCTYPE html>
+<html class=''>
+
+<head>
+  <title>Chat | B-Shop</title>
+  <link href="/css/chat.css" rel="stylesheet">
+  <meta charset='UTF-8'>
+  <meta name="robots" content="noindex">
+  <link href="/css/reset.min.css" rel="stylesheet prefetch">
+  <link rel='stylesheet prefetch'
+    href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.2/css/font-awesome.min.css'>
+</head>
+
+<body>
+  <div id="frame">
+    <div id="sidepanel">
+      <div id="link">
+        <a href="javascript:history.back()">
+          <i class="fa fa-arrow-left"></i>
+          Quay lại
+        </a>
+        <a href="/">
+          <i class="fa fa-home"></i>
+          Trang chủ
+        </a>
+      </div>
+      <div id="profile">
+        <div class="wrap">
+          <a href="/accounts/<%= user.id %>">
+            <img id="profile-img" src="https://ipfs.infura.io/ipfs/<%= user.avatar %>" alt="" />
+          </a>
+          <p><%= `${user.lastName} ${user.firstName}` %></p>
+        </div>
+      </div>
+      <div id="search">
+        <label for=""><i class="fa fa-search" aria-hidden="true"></i></label>
+        <input id="input-search" type="text" placeholder="Tìm tên hoặc id người liên lạc..." />
+      </div>
+      <div id="contacts">
+        <ul id="contact-list">
+        <% for( let i = 0; i < contactList.length; i++ ) { %>
+          <% let contact = contactList[i]; %>
+          <% let contactId = user.id === contact.fromUserId ? contact.toUserId : contact.fromUserId %>
+          <li id="contact_id_<%= contactId %>" class="contact">
+            <div class="wrap">
+              <img src="https://ipfs.infura.io/ipfs/<%= contact.avatar %>" alt="" />
+              <div class="meta">
+                <p class="name"><%= contact.fullName %></p>
+                <p class="preview" <% if (contact.new) { %> style="font-weight: bold;" <% } %>><% if (user.id === contact.fromUserId) { %><span>Bạn: </span><% } %><%= contact.content %></p>
+                <p class="hidden" hidden><%= contactId %></p>
+              </div>
+            </div>
+          </li>
+        <% } %>
+        </ul>
+      </div>
+    </div>
+    <div class="content">
+      <div class="contact-profile" hidden>
+          <img alt="avatar" />
+          <p></p>
+      </div>
+      <div class="messages">
+        <ul></ul>
+      </div>
+      <div class="message-input" hidden>
+        <div class="wrap">
+          <input type="text" placeholder="Nhập tin nhắn..." />
+          <button class="submit"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="/js/socket.io.min.js"></script>
+  <script>
+    var lastTimeOutId, lastSearchValue, curUserIdChatTo, mainContactList, contactList;
+    var searching = false;
+    var socket;
+    $(function() {
+      contactList = $('#contact-list');
+      mainContactList = $('#contact-list').clone(true, true);
+      // Connect to server
+      socket = io.connect();
+      socket.emit('new connect', '<%= user.id %>')
+
+      //Socket receives data and appends to layout
+      socket.on("new message", function (data) {
+        // Move contact card to top and set preview
+        // If card is not available, create one
+        // Note: if user chats to himself, don't create new card (the 'send message' has already done it)
+        let preview = $(mainContactList).find(`#contact_id_${data.fromUser._id}`);
+        if (preview.length) {
+            preview.parent().prepend(preview);
+            const previewText = preview.find('.preview');
+            previewText.attr("style", 'font-weight: bold;');
+            previewText.html(data.content);
+        } else if ('<%= user.id %>' !== curUserIdChatTo) {
+          createContactCard(data);
+        }
+
+        // Create chat box
+        if (curUserIdChatTo === data.fromUser._id && '<%= user.id %>' !== curUserIdChatTo) {
+          createChatBox(data.fromUser._id, 'replies', data.content);
+        }
+
+        if (!searching)
+          contactList.html(mainContactList.html());
+      })
+    })
+
+    function createChatBox(userId, type, message) {
+      $.ajax({
+        url: `/chat/get-avatar?userId=${userId}`,
+        type: 'GET',
+        data: { 
+        },
+        success: function (response) {
+          $(`<li class="${type}"><img src="https://ipfs.infura.io/ipfs/${response}" alt="" /><p>${message}</p></li>`).appendTo($('.messages ul'));
+        }
+      })
+    }
+
+    function createContactCard(data) {
+      if (data.active)
+        mainContactList.find('.contact').removeClass('active');
+        
+      // Append new card to top
+      let cardString =
+      `<li id="contact_id_${data.fromUser._id}" class="contact${data.active ? ' active' : ''}">` +
+        '<div class="wrap">' +
+          `<img src="https://ipfs.infura.io/ipfs/${data.fromUser.avatar}" alt="" />` +
+          '<div class="meta">' +
+            `<p id="name" class="name">${data.fromUser.fullName ? data.fromUser.fullName : data.fromUser.lastName + ' ' + data.fromUser.firstName}</p>` +
+            `<p class="preview">${data.content}</p>` +
+            `<p class="hidden" hidden>${data.fromUser._id}</p>` +
+          '</div>' +
+        '</div>' +
+      '</li>' + mainContactList.html()
+
+      mainContactList.html(cardString);
+    }
+
+    function createUserList(listData) {
+      if (!listData) return;
+
+      var userListString = '';
+      listData.map(data => {
+        templateString = `<li id="contact_id_${data._id}" class="contact">` +
+          '<div class="wrap">' +
+            `<img id="img" src="https://ipfs.infura.io/ipfs/${data.avatar}" />` +
+            '<div class="meta">' +
+              `<p id="name" class="name">${data.lastName} ${data.firstName}</p>` +
+              '<p class="preview">Nhấp vào thẻ để trò chuyện.</p>' +
+              `<p class="hidden" hidden>${data._id}</p>` +
+            '</div>'+
+          '</div>'+
+        '</li>';
+        userListString += templateString;
+      })
+      contactList.html(userListString);
+    }
+
+    $("#input-search").bind('input', function() {
+      clearTimeout(lastTimeOutId);
+      var curValue = $("#input-search").val();
+      lastTimeOutId = setTimeout(() => {
+        if (lastSearchValue === curValue) {
+          if (!curValue.trim()) {
+            searching = false;
+            contactList.html(mainContactList.html());
+          }
+          else {
+            searching = true;
+            $.ajax({
+              url: `/chat/search-name-or-username?searchContent=${curValue}`,
+              type: 'GET',
+              success: function (response) {
+                createUserList(response);
+              }
+            })
+          }
+          
+        }
+      }, 200);
+      lastSearchValue = curValue;
+    });
+
+    $('#contact-list').on('click', '.contact', function(){
+      // If clicking on the active card, return.
+      if ($(this).attr("class").includes("active")) return;
+
+      // Change active contact card
+      $('.contact').removeClass('active');
+      mainContactList.find('.contact').removeClass('active');
+      
+      $(this).addClass("active");
+      mainContactList.find('#' + $(this).attr('id')).addClass('active');
+
+      // Set new user chat to id
+      curUserIdChatTo = $(this).find('.hidden').text();
+
+      // Clear chat boxes
+      $('.messages ul').html('');
+      $(this).find('.preview').attr("style", '');
+      $('.message-input').removeAttr("hidden");
+      $('.contact-profile').removeAttr("hidden");
+      $('.contact-profile img').attr("src", $(this).find('img').attr("src"));
+      $('.contact-profile p').html($(this).find('.name').html());
+
+      // Get new chat boxes
+      // Todo: get chat data from server and append it to current contact
+      $.ajax({
+        url: `/chat/get-chat-boxes?toUserId=${curUserIdChatTo}`,
+        type: 'GET',
+        success: function(response) {
+          response.forEach(chat => {
+            createChatBox(chat.fromUserId === '<%= user.id %>' ? '<%= user.id %>' : curUserIdChatTo, chat.type, chat.content)
+          });
+        }
+      })
+    })
+
+    $(".messages").animate({ scrollTop: $(document).height() }, "fast");
+
+    function sendMessage() {
+      message = $(".message-input input").val();
+      if ($.trim(message) == '') {
+        return false;
+      }
+      
+      $.ajax({
+        url: '/chat',
+        type: 'POST',
+        data: { 
+          toUserId: curUserIdChatTo,
+          content: message
+        },
+        success: function (response) {
+          socket.emit('sent', {toUserId: curUserIdChatTo, content: message});
+        }
+      })
+      
+      createChatBox('<%= user.id %>', 'sent', message);
+      $('.message-input input').val(null);
+
+      // Todo: create new chat box and return to main contact list if card is not available.
+      var preview = mainContactList.find('#contact_id_' + curUserIdChatTo);
+      if (!preview.length) {
+        let avatar = $('.contact-profile img').attr('src').split('/');
+        avatar = avatar[avatar.length - 1];
+        createContactCard({
+          fromUser: {
+            _id: curUserIdChatTo,
+            avatar: avatar,
+            fullName: $('.contact-profile p').html(),
+          },
+          content: message,
+          active: true
+        })
+        preview = mainContactList.find('#contact_id_' + curUserIdChatTo);
+      }
+
+      const previewText = preview.find('.preview');
+      previewText.attr("style", '');
+      previewText.html('<span>Bạn: </span>' + message);
+      $(".messages").animate({ scrollTop: $(document).height() }, "fast");
+
+      // Push contact card to top
+      preview.parent().prepend(preview);
+
+      if (!searching)
+        contactList.html(mainContactList.html());
+    };
+
+    $('.submit').click(function () {
+      sendMessage();
+    });
+
+    $(window).on('keydown', function (e) {
+      if (e.which == 13) {
+        sendMessage();
+        return false;
+      }
+    });
+//# sourceURL=pen.js
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,30 @@
+<!-- Web3js -->
+<script src="/dashboard/resource/plugins/web3/web3.min.js"></script>
+<!-- constant-value -->
+<script language="javascript" type="text/javascript" src="/constant-value-views.js"></script>
+
+<script>
+  async function loadWeb3() {
+    const abi = productsAbi;
+    const contractAddress = productsContractAddress;
+    // Modern dapp browsers...
+    if (window.ethereum) {
+      window.web3 = new Web3(ethereum);
+      try {
+      // Request product access if needed
+      await ethereum.enable();
+      } catch (error) {
+      // User denied product access...
+      }
+    }
+    // Non-dapp browsers...
+    else {
+      console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
+      
+      const url = 'http://localhost:8545'
+      const provider = new Web3.providers.HttpProvider(url)
+      window.web3 = new Web3(provider);
+    }
+			contract = new web3.eth.Contract(abi, contractAddress);
+  }
+</script>

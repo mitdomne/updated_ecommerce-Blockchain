@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<!--
+This is a starter template page. Use this page to start your new project from
+scratch. This page gets rid of all links and provides the needed markup only.
+-->
+<html lang="en">
+
+<%- include('resource/partials/header') %> 
+
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+
+  <!-- Navbar -->
+  <%- include('resource/partials/navbar') %> 
+  <!-- /.navbar -->
+
+  <!-- Main Sidebar Container -->
+  <%- include('resource/partials/left-sidebar') %> 
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <%- include('resource/partials/content-header') %> 
+    <!-- /.content-header -->
+
+  <!-- Main content -->
+  <div class="content">
+  <div class="container-fluid">
+    <!-- Small boxes (Stat box) -->
+    <div class="row">
+      <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-info">
+          <div class="inner">
+            <p>Tổng tài khoản</p>
+            <h3 id="accountAmount">0</h3>
+          </div>
+          <div class="icon">
+            <i class="ion ion-account"></i>
+          </div>
+          
+        </div>
+      </div>
+      <!-- ./col -->
+      <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-danger">
+          <div class="inner">
+            <p>TK Admin</p>
+            <h3 id="accountAdmin">0</h3>
+          </div>
+          <div class="icon">
+            <i class="ion ion-account"></i>
+          </div>
+        </div>
+      </div>
+      <!-- ./col -->
+      <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-warning">
+          <div class="inner">
+            <p>TK Seller</p>
+            <h3 id="accountSeller">0</h3>
+          </div>
+          <div class="icon">
+            <i class="ion ion-account"></i>
+          </div>
+        </div>
+      </div>
+      <!-- ./col -->
+      <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-success">
+          <div class="inner">
+            <p>TK Member</p>
+            <h3 id="accountMember">0</h3>
+          </div>
+          <div class="icon">
+            <i class="ion ion-account"></i>
+          </div>
+        </div>
+      </div>
+      <!-- ./col -->
+    </div>
+    <!-- /.row -->
+
+    <div class="row">
+      <div class="col-lg-12">
+        <h3>Tìm kiếm</h3>
+        <input type="text" class="form-control" id="searchInput" onkeyup="handleSearch()" placeholder="Search">
+        <br>
+        <h3>Lọc theo loại tài khoản</h3>
+        <select onchange="handleSearch()" id="roleSelect">
+          <option value="0" selected>Tất cả</option>
+          <option value="1">Admin</option>
+          <option value="2">Seller</option>
+          <option value="3">Member</option>
+        </select>
+        <table class="table table-hover"id="accountTable">
+          <thead>
+            <tr>
+              <th>Tên đăng nhập</th>
+              <th>Họ</th>
+              <th>Tên</th>
+              <th>Avatar</th>
+              <th>Số điện thoại</th>
+              <th>Địa chỉ</th>
+              <th>Email</th>
+              <th>Địa chỉ ví</th>
+              <th>Vai trò</th>
+              <th>Kích hoạt?</th>
+              <th>Sửa</th>
+            </tr>
+          </thead>
+          <% accounts.forEach((entry) => { %>
+            <tr>
+              <form action="/dashboard/accounts/<%= entry.id %>" method="POST" onsubmit="handleSave('<%= entry.id%>');">
+                <td><a href="/accounts/<%= entry.username %>"><%= entry.username %></a></td>
+                <td><input type="text" class="account_id_<%= entry.id %> form-control form-control-sm" id="last_name_id_<%= entry.id%>" name="accountLastName" value="<%= entry.lastName %>" size="4" disabled></td>
+                <td><input type="text" class="account_id_<%= entry.id %> form-control form-control-sm" id="first_name_id_<%= entry.id%>" name="accountFirstName" value="<%= entry.firstName %>" size="6" disabled></td>
+                <td>
+                  <div>
+                    <input class="account_id_<%= entry.id %>" id="avatar_id_<%= entry.id %>" type="file" onchange="avatarOnchange('<%= entry.id %>')" style="width: 170px;" hidden>
+                  </div>
+                  <img src="https://ipfs.infura.io/ipfs/<%= entry.avatar %>" id="avatarImg_id_<%= entry.id %> form-control form-control-sm" style="max-width: 50px; max-height: 50px;object-fit: scale-down;">
+                </td>
+                <td><input type="text" class="account_id_<%= entry.id %> form-control form-control-sm" id="phone_number_id_<%= entry.id%>" name="accountPhoneNumber" value="<%= entry.phoneNumber %>" size="6" disabled></td>
+                <td><input type="text" class="account_id_<%= entry.id %> form-control form-control-sm" id="address_id_<%= entry.id%>" name="accountAddress" value="<%= entry.address %>" size="10" disabled></td>
+                <td><input type="text" class="account_id_<%= entry.id %> form-control form-control-sm" id="email_id_<%= entry.id%>" name="accountEmail" value="<%= entry.email %>" size="8" disabled></td>
+                <td><input type="text" class="account_id_<%= entry.id %> form-control form-control-sm" id="owner_id_<%= entry.id%>" name='accountOwner' value="<%= entry.owner %>" size="3" disabled></td>
+                
+                <td><select class="account_id_<%= entry.id %> form-control form-control-sm"current_role_id = <%= entry.role %> id="accountRole" name="accountRole" disabled>
+                  <option value="Admin">Admin</option>
+                  <option value="Seller">Seller</option>
+                  <option value="Member">Member</option>
+                </select></td>
+                <td><input type="checkbox" class="account_id_<%= entry.id %> form-control form-control-sm" id="accountActivated<%= entry.id %>" name="accountActivated" style="width: 30px;" disabled></td>
+                <td>
+                  <input class="btn btn-primary account_id_<%= entry.id %>" id="update_button_id_<%= entry.id %>" type="button" value="Update"
+                    onclick="handleUpdateAccount('<%= entry.id %>')">
+                    <input class="btn btn-danger account_id_<%= entry.id %>" id="lock_button_id_<%= entry.id %>" type="button" value="Lock"
+                    onclick="handleLockAccount('<%= entry.id %>')">
+                  <input class="btn btn-success account_id_<%= entry.id %>" id="save_button_id_<%= entry.id %>" type="submit" value="Save" 
+                    hidden>
+                  <input class="btn btn-secondary account_id_<%= entry.id %>" id="cancel_button_id_<%= entry.id %>" type="button" value="Cancel"
+                    onclick="handleCancelUpdateAccount('<%= entry.id %>')" hidden>
+                </td>
+              </form>
+            </tr>
+          <% }) %>
+        </table>
+      </div>
+      <!-- /.col-md-6 -->
+    </div>
+    <!-- /.row -->
+  </div><!-- /.container-fluid -->
+  </div>
+  <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  <!-- Main Footer -->
+  <%- include('resource/partials/footer') %> 
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+<%- include('resource/partials/required-scripts') %> 
+<%- include('resource/partials/ipfs') %> 
+
+<script>
+  $(function() {
+    const accountAmount = "<%= accounts.length %>";
+    document.getElementById("accountAmount").innerHTML = accountAmount;
+    let accountAdmin = 0, accountSeller = 0, accountMember = 0;
+
+    "<% accounts.forEach((entry) => { %>"
+      if ("<%= entry.role %>" === "Admin" )
+        accountAdmin++;
+      if ("<%= entry.role %>" === "Seller" )
+        accountSeller++;
+      if ("<%= entry.role %>" === "Member" )
+        accountMember++;
+      if ("<%= entry.activated %>" === "true") {
+        document.getElementById("accountActivated<%= entry.id %>").checked = true;}
+    "<% }) %>"
+
+    document.getElementById("accountAdmin").innerHTML = accountAdmin;
+    document.getElementById("accountSeller").innerHTML = accountSeller;
+    document.getElementById("accountMember").innerHTML = accountMember;
+
+    const accounts_select = document.getElementsByTagName("select");
+    for (let i = 0; i < accounts_select.length; i++) {
+      const element = accounts_select[i];
+      if (element.id === "accountRole") {
+        switch (element.getAttribute("current_role_id")) {
+          case "Admin":
+            element.selectedIndex = 0;
+            break;
+          case "Seller":
+            element.selectedIndex = 1;
+            break;
+          case "Member":
+            element.selectedIndex = 2;
+            break;
+          default:
+            break;
+        }
+      }
+    }
+  })
+
+  function handleUpdateAccount(accountId) {
+    const accountInfo = document.getElementsByClassName("account_id_" + accountId);
+    for (let i = 0; i < accountInfo.length; i++) {
+      const element = accountInfo[i];
+
+      if (element.id === "update_button_id_" + accountId || element.id === "lock_button_id_" + accountId) 
+        element.hidden = true;
+      else{
+        element.hidden = false;
+        element.disabled = false;
+      }
+    }
+  }
+
+  function handleCancelUpdateAccount(accountId) {
+    const accountInfo = document.getElementsByClassName("account_id_" + accountId);
+
+    for (let i = 0; i < accountInfo.length; i++) {
+      const element = accountInfo[i];
+      if (element.id === "update_button_id_" + accountId || element.id === "lock_button_id_" + accountId) 
+        element.hidden = false;
+      else if (element.id === "cancel_button_id_" + accountId || element.id === "save_button_id_" + accountId || element.id === "avatar_id_" + accountId) {
+        element.hidden = true;
+      } else {
+        element.disabled = true;
+      }
+    }
+  }
+
+  function handleSearch() {
+    const input = document.getElementById("searchInput");
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById("accountTable");
+    const select = document.getElementById("roleSelect");
+    const trs = table.getElementsByTagName("tr");
+
+    for (let i = 2; i < trs.length; i++) {
+      const tds = trs[i].getElementsByTagName("td");
+      if (!tds.length) continue;
+      if (select.selectedIndex !== 0 && tds[3].innerText !== select.options[select.selectedIndex].innerText) {
+        console.log(select.options[select.selectedIndex].innerText);
+        console.log(tds[3].innerText)
+        trs[i].hidden = true;
+        continue;
+      }
+      for (j = 0; j < tds.length; j++) {
+        // Ignore category
+        if (j == 3) continue;
+        const txtValue = tds[j].textContent || tds[j].innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+          trs[i].hidden = false;
+          break;
+        }
+      }
+      if (j == tds.length) trs[i].hidden = true;
+    }
+  }
+
+  function handleLockAccount(accountId) {
+    if (confirm("Bạn có chắc muốn khóa tài khoản này ?")) {
+      $.ajax({
+        url: '/dashboard/accounts/lock/' + accountId,
+        type: 'POST',
+        success: function (result) {
+          document.location.reload();
+        }
+      })
+    }
+  }
+
+  async function handleSave(accountId) {
+		const owner = document.getElementById("owner_id_" + accountId).value;
+    const email = document.getElementById("email_id_" + accountId).value;
+    const firstName = document.getElementById("first_name_id_" + accountId).value;
+		const phoneNumber = document.getElementById("phone_number_id_" + accountId).value;
+		const address = document.getElementById("address_id_" + accountId).value;
+    
+		let checkExist = null;
+    $.ajax({
+      url: '/dashboard/check-exist',
+      type:'POST',
+      async: false,
+      data: {
+        accountId: accountId,
+        email: email
+      },
+      success: function (response) {
+        checkExist = response;
+      }
+    })
+    
+    if (checkExist != "Ok") {
+      alert(checkExist);
+      event.preventDefault(); 
+      return false;
+    }
+
+		// Check valid owner address
+		const re = /^[0-9a-fA-F]+$/;
+		if (!owner) {
+		alert('Bạn cần thêm tài khoản Ether!');
+			event.preventDefault(); 
+			return false;
+		}
+
+		if (!re.test(owner.substring(2, owner.length)) || owner.length !== 42 || owner[0] !== "0" || owner[1] !== "x") {
+			alert('Địa chỉ tài khoản Ether không hợp lệ!');
+			event.preventDefault(); 
+			return false;
+    }
+
+    if (!phoneNumber) {
+      alert("Số điện thoại trống!")
+      event.preventDefault(); 
+      return false;
+    }
+
+    if (!address) {
+      alert("Địa chỉ trống!")
+      event.preventDefault(); 
+      return false;
+    }
+
+    if (!firstName) {
+      alert("Tên trống!")
+      event.preventDefault(); 
+      return false;
+    }
+
+		if (!email) {
+			alert("Email trống!")
+			event.preventDefault(); 
+			return false;
+    }
+    
+		const at = email.indexOf("@");
+		const dot = email.lastIndexOf(".");
+		const space = email.indexOf(" ");
+		if (email.length <= 5 || at < 1 || dot <= at + 1 || space !== -1) {
+			alert('Địa chỉ Email không hợp lệ !\nExample@gmail.com');
+			event.preventDefault(); 
+			return false;
+    }
+    
+		return true;
+  };
+</script>
+
+</body>
+</html>

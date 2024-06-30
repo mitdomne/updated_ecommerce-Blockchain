@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('header') %>
+
+<body>
+
+	<%- include('body-header') %>
+
+	<section id="cart_items">
+		<div class="container">
+			<% if (shoppingCart.length == 0) { %>
+				<p style="margin-bottom: 350px;">Bạn chưa có gì trong giỏ hàng!</p>
+			<% } else { %>
+				<div class="table-responsive cart_info">
+					<table class="table table-condensed">
+						<thead>
+							<tr class="cart_menu">
+								<td class="image">Mặt hàng</td>
+								<td class="description">Tên</td>
+								<td class="price">Đơn giá</td>
+								<td class="quantity">Số lượng</td>
+								<td class="total">Tổng giá</td>
+								<td></td>
+							</tr>
+						</thead>
+						<tbody>
+							<% shoppingCart.forEach(element => { %>
+								<tr id="tr_cart_id_<%= element.id %>" name="have_products">
+									<td class="cart_product">
+										<img src="https://ipfs.infura.io/ipfs/<%= element.imageHash %>" alt="" style="max-width: 100px; max-height: 100px;object-fit: scale-down;">
+									</td>
+									<td class="cart_description">
+										<h4><a href="/products/<%= element.productId %>"><%= element.productName %> </a></h4>
+										<p></p>
+									</td>
+									<td class="cart_price">
+										<p id="cart_price_id_<%= element.id %>"><%= element.price %> ETH</p>
+									</td>
+									<td class="cart_quantity">
+										<div class="cart_quantity_button">
+											<input id="cart_quantity_id_<%= element.id %>" data-id="<%= element.id %>" data-product-id="<%= element.productId %>" class="cart_quantity_input form-control" type="number" name="quantity" value="<%= element.amount %>" min="1" max="<%= element.availQuantity %>" autocomplete="off" size="2">
+										</div>
+									</td>
+									<td class="cart_total">
+										<p class="cart_total_price"><%= element.amount * element.price %> ETH</p>
+									</td>
+									<td class="cart_delete">
+										<button type="button" class="btn btn-default cart" onclick="handleRemoveFromCart('<%= element.id %>')"><i class="fa fa-times"></i></button>
+									</td>
+								</tr>
+							<% }) %>
+						</tbody>
+					</table>
+				</div>
+			<% } %>
+		</div>
+	</section> <!--/#cart_items-->
+	<% if (shoppingCart.length > 0) { %>
+		<section id="do_action">
+			<div class="container" name="have_products">
+				<div>
+					<button type="button" class="btn btn-default add-to-cart" onclick="handleUpdateCart()">
+						<i class="fa fa-pencil-square-o"></i>
+						Cập nhật
+					</button>
+					<button type="button" class="btn btn-default cart" onclick="handleRemoveAllFromCart(true)" style="float: right">
+						<i class="fa fa-times"></i>
+						Xóa toàn bộ
+					</button>
+					<div>
+						<h3 style="display: inline;">Tổng tiền giỏ hàng:
+							<span id="cart_total_sale" style="color: silver; text-decoration: line-through;"></span>
+							<span id="cart_total" style="color: chartreuse;"></span>
+						</h3>
+					</div>
+					<div>
+						<br>
+						<div class="form-group col-sm-12">
+							<input type="text" class="form-control" id="saleCode" style="display: inline; width: 200px;" placeholder="mã khuyến mãi...">
+							<button id="sale-btn" type="button" class="btn btn-default cart" style="margin-bottom: 0px;" onclick="handleSearchSale()">
+								<i class="fa fa-check-circle-o"></i>
+								Kiểm tra
+							</button>
+							<p id="saleText" style="color: chartreuse; position: static;"></p>
+						</div>
+						<!-- <div class="form-group col-sm-3"></div> -->
+					</div>
+					<div>
+						<div class="form-group col-sm-6">
+							<input type="text" class="form-control" id="phoneNumber" placeholder="Số điện thoại..." value="<%= user.phoneNumber %>">
+						</div>
+						<div class="form-group col-sm-6">
+							<input type="text" class="form-control" id="address" placeholder="Địa chỉ..." value="<%= user.address %>">
+						</div>
+						<button id="buy-btn" type="button" class="btn btn-default cart" onclick="handleBuyProduct()">
+							<i class="fa fa-credit-card"></i>
+							Mua
+						</button>
+					</div>
+				</div>
+			</div>
+		</section>
+		<!--/#do_action-->
+	<% } %>
+
+	<%- include('footer') %> 
+	<%- include('web3') %> 
+
+	<script>
+		let contract, sale;
+		$(function() {
+			"<% if (shoppingCart.length > 0) { %>"
+				let productPrices = document.getElementsByClassName("cart_total_price");
+				let total = 0;
+				for (let i = 0; i < productPrices.length; i++) {
+					total += parseInt(productPrices[i].innerText)
+				}
+				document.getElementById("cart_total").innerHTML = total + " ETH";
+				loadWeb3();
+			"<% } %>"
+		});
+
+		function handleBuyProduct() {
+			let phoneNumber = document.getElementById("phoneNumber").value;
+			let address = document.getElementById("address").value;
+
+			if (!phoneNumber) return alert("Số điện thoại trống!");
+			if (!address) return alert("Địa chỉ trống!");
+
+			// TODO: Add phone number and address to purchase info
+
+			let userId = "<%= user.id %>";
+
+			web3.eth.getAccounts(function (error, result) {
+				if (error)
+					return console.log(error);
+
+				if ("<%= user.owner %>" != result[0])
+					return alert("Tài khoản ví hiện tại khác với tài khoản ví đã đăng ký!")
+				
+				let pin = String(Math.floor(Math.random() * 10000));
+				while (pin.length < 4) pin = '0' + pin;
+
+				$.ajax({
+					url: '/cart/buy',
+					type: 'GET',
+					success: function (data) {
+						let saleId = '', saleOff = 0;
+						if (sale) {
+							saleId = sale._id;
+							saleOff = sale.saleOff;
+						}
+						contract.methods.purchaseProduct(data.productIds, data.buyerId, data.sellerAddresses, data.amounts, saleId, saleOff, phoneNumber, address, data.settings.siteAddress, data.settings.commission, pin).send({from: result[0], value: web3.utils.toWei(String(data.totalPrice - data.totalPrice * saleOff / 100), 'ether')}).then(function(tx) {
+							$.ajax({
+								url: '/cart/update-purchase',
+								type: 'POST',
+								data: {
+									saleId,
+									data
+								},
+								success: function (data) {
+									handleRemoveAllFromCart(false);
+									alert("Mua hàng thành công!\nMã giao hàng của bạn là " + pin);
+									document.location.href = "/accounts/<%= user.username %>"
+									console.log(tx);
+								}
+							})
+						}).catch(function(tx) {
+							console.log(tx);
+						})
+					}
+				})
+			})
+		}
+		
+		function handleRemoveFromCart(cartId) {
+			$.ajax({
+				url: '/cart/remove-from-cart',
+				type: 'DELETE',
+				data: { 
+					cartId: cartId
+				},
+				success: function (result) {
+					const price = parseFloat(document.getElementById('cart_price_id_' + cartId).innerText);
+					const quantity = +document.getElementById('cart_quantity_id_' + cartId).value;
+					const cartTotal = document.getElementById("cart_total");
+					if (sale) {
+						const cartTotalSale = document.getElementById("cart_total_sale");
+						let total = parseFloat(cartTotalSale.innerText);
+						total -= price * quantity;
+						cartTotalSale.innerText = total + " ETH";
+						cartTotal.innerText = total - total * sale.saleOff / 100 + " ETH";
+					} else {
+						let total = parseFloat(cartTotal.innerText);
+						total -= price * quantity;
+						cartTotal.innerText = total + " ETH";
+					}
+
+					document.getElementById('tr_cart_id_' + cartId).remove();
+				}
+			})
+		}
+
+		function handleRemoveAllFromCart(reload) {
+			$.ajax({
+				url: '/cart/remove-all-from-cart',
+				type: 'DELETE',
+				data: { 
+					userId: "<%= user.id %>"
+				},
+				success: function (result) {
+					if (reload)
+						document.location.reload();
+				}
+			})
+		}
+
+		function handleUpdateCart() {
+			let cartInputs = document.getElementsByClassName("cart_quantity_input");
+			let cartUpdateData = [];
+			for (let i = 0; i < cartInputs.length; i++) {
+				const element = cartInputs[i];
+				let updateData = {}; 
+				updateData.id = element.getAttribute('data-id');
+				updateData.productId = element.getAttribute('data-product-id');
+				updateData.amount = element.value;
+				cartUpdateData.push(updateData);
+			}
+			$.ajax({
+				url: '/cart/update-cart',
+				type: 'POST',
+				data: { 
+					cartUpdateData: cartUpdateData
+				},
+				success: function (result) {
+					window.location.reload();
+				}
+			})
+		}
+		
+		$( "#saleCode" ).bind('input', function() {
+			this.value = this.value.trim().toUpperCase();
+		});
+
+		function handleSearchSale() {
+			const saleCode = document.getElementById('saleCode').value;
+			$.ajax({
+				url: '/cart/check-sale-code?saleCode=' + saleCode,
+				type: 'GET',
+				success: function (result) {
+					const saleText = document.getElementById('saleText');
+					saleText.innerText = `Đã nhập mã ${saleCode}.`
+					saleText.style.color = 'chartreuse';
+
+					const cartTotal = document.getElementById("cart_total");
+
+					const total = parseFloat(cartTotal.innerText);
+					document.getElementById("cart_total_sale").innerText = cartTotal.innerText;
+					cartTotal.innerText = total - total * result.saleOff / 100 + " ETH";
+					sale = result;
+				},
+				error: function() {
+					const saleText = document.getElementById('saleText');
+					saleText.innerText = 'Mã không hợp lệ.'
+					saleText.style.color = 'red';
+
+					const cartTotal = document.getElementById("cart_total");
+					cartTotal.style.color = 'chartreuse';
+					cartTotal.style.textDecoration = 'none';
+					
+					document.getElementById("cart_total_sale").innerText = '';
+					sale = '';
+				}
+			})
+		}
+	</script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<header id="header"><!--header-->
+		
+  <div class="header-middle"><!--header-middle-->
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-2">
+          <div class="logo pull-left">
+            <a href="/"><img src="/images/home/logo_shop.png" alt="" style="width: 139px; height: 50px;"/></a>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="searchform">
+            <div class="col-sm-12" style="display:table">
+              <input class="form-control" type="text" placeholder="Tìm sản phẩm..." style="display: table-cell; width: 86%; vertical-align: unset;" id="searchInput">
+              <button class="btn btn-default" onclick="handleSearchProduct()"><i class="fa fa-arrow-circle-o-right"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-4">
+          <div class="shop-menu pull-right">
+            <ul class="nav navbar-nav">
+              <% if (user) { %>
+                <li><a href="/accounts/<%= user.username %>" title="Chi tiết tài khoản"><i class="fa fa-user"></i><%= user.firstName %></a></li>
+                <li><a href="/wish-list" title="Danh sách mong muốn"><i class="fa fa-star"></i><span id="wishListCount" class="badge badge-warning navbar-badge"></span></a></li>
+                <li><a href="/chat" title="Nhắn tin"><i class="fa fa-comments"></i><span id="chatCount" class="badge badge-warning navbar-badge"></span></a></li>
+                <!-- <li><a href="checkout.html"><i class="fa fa-crosshairs"></i> Checkout</a></li> -->
+                <li><a href="/cart" title="Giỏ hàng"><i class="fa fa-shopping-cart"></i><span id="cartCount" class="badge badge-warning navbar-badge"></span></a></li>
+                <li><a href="/logout" title="Đăng xuất"><i class="fa fa-sign-out"></i></a></li>
+              <% } else { %>
+                <li><a href="/login"><i class="fa fa-lock"></i> Đăng nhập / Đăng ký</a></li>
+              <% } %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!--/header-middle-->
+
+  <div class="header-bottom"><!--header-bottom-->
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+          </div>
+          <div class="mainmenu pull-left">
+            <ul class="nav navbar-nav collapse navbar-collapse">
+              <li><a href="/">Trang chủ</a></li>
+              <% if (user && (user.role == "Admin" || user.role == "Seller")) { %>
+                <% if (user.role == "Admin") { %>
+                  <li><a href="/dashboard">Dashboard</a></li>
+                <% } %>
+                <li><a href="/products/add">Thêm sản phẩm</a></li>
+              <% } %>
+              <li><a href="/contact-us">Liên hệ</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!--/header-bottom-->
+</header><!--/header-->

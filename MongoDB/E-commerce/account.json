@@ -1,0 +1,123 @@
+[{
+  "_id": {
+    "$oid": "5eb67cfff46b041a6454f989"
+  },
+  "username": "a",
+  "password": "b",
+  "owner": "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0",
+  "activated": true,
+  "__v": 0,
+  "role": "Seller",
+  "avatar": "QmZyRA3BzgezxzGdX6cPBstpw5sYrQKZGyQc71NMHL7exk",
+  "locked": false,
+  "email": "nguyenvan@gm.uit.edu.vn",
+  "firstName": "Văn A",
+  "lastName": "Nguyễn",
+  "address": "TP. Đà Nẵng",
+  "phoneNumber": "0836282822",
+  "verification": "009071"
+},{
+  "_id": {
+    "$oid": "5f1fe179694dea34bcb8d6ca"
+  },
+  "username": "admin",
+  "password": "admin",
+  "email": "mitdom2510@gmail.com",
+  "owner": "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1",
+  "avatar": "QmT2k7HgeaPPV9gcUKW8coHmUSYsaCVEJEieitqrpLWSiC",
+  "role": "Admin",
+  "activated": true,
+  "verification": "000789",
+  "__v": 0,
+  "locked": false,
+  "firstName": " Admin",
+  "lastName": "Võ",
+  "address": "Quảng Nam",
+  "phoneNumber": "0123123123"
+},{
+  "_id": {
+    "$oid": "5f22cb8b20fd480cbcf60aa7"
+  },
+  "username": "trongtind16",
+  "password": "123456",
+  "email": "trongtind16@gmail.com",
+  "owner": "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1",
+  "avatar": "",
+  "role": "Seller",
+  "activated": true,
+  "locked": true,
+  "verification": "004411",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff68e9f3ee01d445c676c63"
+  },
+  "username": "b",
+  "password": "c",
+  "owner": "0x95cED938F7991cd0dFcb48F0a06a40FA1aF46EBC",
+  "activated": true,
+  "__v": 0,
+  "role": "Member",
+  "avatar": "QmRtbbw3Kh6VezAphbU4aPLBZEYeM7mRj8YS2SD2z38Ddg",
+  "locked": true,
+  "email": "mrtanlovethelife@gmail.com",
+  "firstName": "Văn B",
+  "lastName": "Trần",
+  "address": "TP. Thủ Đức",
+  "phoneNumber": "0836282822",
+  "verification": ""
+},{
+  "_id": {
+    "$oid": "5ff820845546242768247fa5"
+  },
+  "username": "c",
+  "password": "Cc1234",
+  "firstName": "Andy",
+  "lastName": "Đỗ",
+  "phoneNumber": "123456789",
+  "address": "VN",
+  "email": "hoaphuongtk2003@gmail.com",
+  "owner": "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1",
+  "avatar": "",
+  "role": "Member",
+  "activated": true,
+  "locked": false,
+  "verification": "001652",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62c5eee8b142a20330a04f74"
+  },
+  "username": "thuhang",
+  "password": "Thuhangvo2510",
+  "firstName": "Hằng",
+  "lastName": "Thu",
+  "phoneNumber": "0916801300",
+  "address": "Đà Nẵng",
+  "email": "thuhanglqd2510@gmail.com",
+  "owner": "0xd03ea8624C8C5987235048901fB614fDcA89b117",
+  "avatar": "QmTKYf9Fpm748E65P44agHSXLqESztQpzKWwjCrhvYsniM",
+  "role": "Member",
+  "activated": true,
+  "locked": false,
+  "verification": "",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62c6154c5d7caa6050ef45cf"
+  },
+  "username": "seller1",
+  "password": "seller123456789",
+  "firstName": "Phuong",
+  "lastName": "Vo",
+  "phoneNumber": "0359241030",
+  "address": "Da Nang",
+  "email": "laromabodymist@gmail.com",
+  "owner": "0x1dF62f291b2E969fB0849d99D9Ce41e2F137006e",
+  "avatar": "QmPr6JPCSw4UhhPJeget3rnBprnJxHXVYEBMXZrrfzBDDc",
+  "role": "Seller",
+  "activated": true,
+  "locked": false,
+  "verification": "",
+  "__v": 0
+}]

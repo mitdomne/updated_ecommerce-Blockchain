@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('header') %>
+
+<body>
+
+	<%- include('body-header') %>
+	
+	<section id="form"><!--form-->
+		<div class="container">
+			<div class="row align-items-center">
+				<div class="col-sm-4 col-sm-offset-1">
+					<div class="login-form" id="login_container">
+						<h2>ĐĂNG NHẬP</h2>
+						<form id="login-form">
+							<div class="form-group">
+								<input class="form-control" type="text" name='username' placeholder="Tên đăng nhập">
+							</div>
+							<div class="form-group">
+								<input class="form-control" type="password" name='password' placeholder="Mật khẩu">
+							</div>
+							<td>
+								<button type="submit" class="btn btn-default" style="display: inline;">Đăng nhập</button>
+								<a href="/forgot-password" class="btn btn-default" style="margin: 23px 15px 0;">Quên mật khẩu?</a>
+							</td>
+						</form>
+					</div>
+				</div>
+				<div class="col-sm-1">
+					<h2 class="or">Hoặc</h2>
+				</div>
+				<div class="col-sm-4">
+					<div class="signup-form"><!--sign up form-->
+						<h2>Đăng ký</h2>
+						<form id="signup-form" action="/signup" method="POST" onsubmit="validateForm();">
+							<div class="form-group">
+								<input class="form-control" type="text" id='accountUsername' name='accountUsername' placeholder='Tên đăng nhập'>
+							</div>
+							<div class="form-group">
+								<input class="form-control" type="password" id='accountPassword' name='accountPassword' placeholder='Mật khẩu'>
+							</div>
+							<div class="form-group">
+								<input class="form-control" type="text" id='lastName' name='lastName' placeholder='Họ'>
+							</div>
+							<div class="form-group">
+								<input class="form-control" type="text" id='firstName' name='firstName' placeholder='Tên'>
+							</div>
+							<div class="form-group">
+								<input class="form-control" type="text" id='phoneNumber' name='phoneNumber' placeholder='Số điện thoại'>
+							</div>
+							<div class="form-group">
+								<input class="form-control" type="text" id='address' name='address' placeholder='Địa chỉ'>
+							</div>
+							<div class="form-group">
+								<label>Avatar</label>
+								<input class="form-control" id="accountAvatarInput" type="file">
+								<img id="accountAvatar" name="accountAvatar" style="display: none;">
+								<input class="form-control" id="accountAvatarHiddenInput" name="accountAvatar" type="hidden">
+							<div class="form-group">
+								<input class="form-control" type="text" id='accountOwner' name='accountOwner' placeholder="Địa chỉ ví">
+							</div>
+							<div class="form-group">
+								<input class="form-control" type="text" id='accountEmail' name='accountEmail' placeholder="Email">
+							</div>
+							<button id="signup_button" type="submit" class="btn">Đăng ký</button>
+						</form>
+					</div><!--/sign up form-->
+				</div>
+			</div>
+		</div>
+	</section><!--/form-->
+	
+	<%- include('footer') %> 
+	<%- include('ipfs') %> 
+	
+	<script>
+		function validateForm() {
+			const username = document.getElementById("accountUsername").value;
+			const password = document.getElementById("accountPassword").value;
+			const lastName = document.getElementById("lastName").value;
+			const firstName = document.getElementById("firstName").value;
+			const owner = document.getElementById("accountOwner").value;
+			const email = document.getElementById("accountEmail").value;
+			const phoneNumber = document.getElementById("phoneNumber").value;
+			const address = document.getElementById("address").value;
+			
+			let checkExist = null;
+			$.ajax({
+				url: `/login/check-exist?username=${username}&email=${email}`,
+				type:'GET',
+				async: false,
+				success: function (response) {
+					checkExist = response;
+				}
+			})
+
+			if (checkExist !== "Ok") {
+				alert(checkExist);
+				event.preventDefault(); 
+				return false;
+			}
+			
+			// Check valid owner address
+			const re = /^[0-9a-fA-F]+$/;
+			if (owner == "") {
+				alert('Bạn cần thêm tài khoản Ether!');
+				event.preventDefault(); 
+				return false;
+			}
+
+			if (!phoneNumber) {
+				alert("Số điện thoại trống!")
+				event.preventDefault(); 
+				return false;
+			}
+
+			if (!address) {
+				alert("Địa chỉ trống!")
+				event.preventDefault(); 
+				return false;
+			}
+
+			if (!re.test(owner.substring(2, owner.length)) || owner.length !== 42 || owner[0] !== "0" || owner[1] !== "x") {
+				alert('Địa chỉ tài khoản Ether không hợp lệ!');
+				event.preventDefault(); 
+				return false;
+			}
+
+			if (!username) {
+				alert("Tên tài khoản trống!")
+				event.preventDefault(); 
+				return false;
+			}
+
+			if (!firstName) {
+				alert("Tên trống!")
+				event.preventDefault(); 
+				return false;
+			}
+
+			if (!email) {
+				alert("Email trống!")
+				event.preventDefault(); 
+				return false;
+			}
+
+			const at = email.indexOf("@");
+			const dot = email.lastIndexOf(".");
+			const space = email.indexOf(" ");
+			if (email.length <= 5 || at < 1 || dot <= at + 1 || space !== -1) {
+				alert('Địa chỉ Email không hợp lệ !\nExample@gmail.com');
+				event.preventDefault(); 
+				return false;
+			}
+			if (password.length < 6) {
+				alert("Mật khẩu phải hơn 6 ký tự!")
+				event.preventDefault(); 
+				return false;
+			}
+			
+			return true;
+		};
+
+		const ipfs = window.IpfsHttpClient('ipfs.infura.io', '5001', { protocol: 'https' });
+		$("#accountAvatarInput").on("change", function() {
+			document.getElementById("signup_button").disabled = true;
+			const reader = new FileReader();
+			reader.onload = function (e) {
+				const to_buffer = buffer.Buffer(reader.result);
+				ipfs.add(to_buffer, (err, result) => {
+					console.log(err, result);
+					document.getElementById("accountAvatar").src = "https://ipfs.infura.io/ipfs/" + result[0].hash;
+					document.getElementById("accountAvatar").style.display = "block";
+					document.getElementById("signup_button").disabled = false;
+					document.getElementById("accountAvatarHiddenInput").value =  result[0].hash;
+				})
+			}
+			reader.readAsArrayBuffer(this.files[0]);
+		});
+
+		const $form = $('#login-form')
+		$form.on('submit', submitHandler)
+
+		function submitHandler (e) {
+			e.preventDefault()
+
+			$.ajax({
+				url: '/login',
+				type:'POST',
+				data: $form.serialize()
+			}).done(response => {
+				if (response == "Sai tên tài khoản hoặc mật khẩu !!!") alert(response);
+				else if (response == "Tài khoản của bạn đã bị khóa !!") alert(response);
+				else window.location.href = response;
+			})
+		}
+	</script>
+</body>
+</html>

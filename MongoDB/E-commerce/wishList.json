@@ -1,0 +1,22 @@
+[{
+  "_id": {
+    "$oid": "5fe229c596594c4638f51265"
+  },
+  "userId": "5eb67cfff46b041a6454f989",
+  "productId": "1",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff699c4bc89bd0e0c51d888"
+  },
+  "userId": "5f1fe179694dea34bcb8d6ca",
+  "productId": "10",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62c617595d7caa6050ef492d"
+  },
+  "userId": "62c5eee8b142a20330a04f74",
+  "productId": "3",
+  "__v": 0
+}]

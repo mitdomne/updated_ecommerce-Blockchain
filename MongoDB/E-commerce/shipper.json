@@ -1,0 +1,36 @@
+[{
+  "_id": {
+    "$oid": "5f9f7938399bf04e603d1862"
+  },
+  "purchaseId": "3",
+  "userId": "5f1fe179694dea34bcb8d6ca",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5f9da20112c3a53e749a41a0"
+  },
+  "purchaseId": "1",
+  "userId": "5eb67cfff46b041a6454f989",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5fddf6bbf22dea3430a68b01"
+  },
+  "purchaseId": "5",
+  "userId": "5eb67cfff46b041a6454f989",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff735e4b835a30308f97d39"
+  },
+  "purchaseId": "2",
+  "userId": "5eb67cfff46b041a6454f989",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ff73725897c7926e83642cd"
+  },
+  "purchaseId": "4",
+  "userId": "5f1fe179694dea34bcb8d6ca",
+  "__v": 0
+}]
